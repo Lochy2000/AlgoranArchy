@@ -10,7 +10,8 @@
 
 ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk rock aesthetic and cutting-edge functionality. Explore real-time Algorand data, connect wallets, trade tokens, and monitor network health - all with an interface that rocks as hard as the technology behind it.
 
-![ALGORANARCHY Screenshot](docs/images/screenshot.png)
+![image](https://github.com/user-attachments/assets/61166ee3-0f91-4642-9202-6465bdc38ac2)
+
 
 ## ✨ Features
 
