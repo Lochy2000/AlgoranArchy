@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALGORANARCHY - Punk Rock Algorand Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #0a0a0a;
+            color: #e2e2e2;
+            overflow-x: hidden;
+        }
+        .punk-font {
+            font-family: 'Press Start 2P', cursive;
+        }
+        .glitch {
+            position: relative;
+            color: #00ffc3;
+            text-shadow: 0 0 10px rgba(0, 255, 195, 0.7);
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+        }
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #ff00c3;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-1 2s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #00fff9, 2px 2px #ff00c3;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim-2 2s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim-1 {
+            0% { clip: rect(46px, 9999px, 119px, 0); }
+            20% { clip: rect(119px, 9999px, 100px, 0); }
+            40% { clip: rect(22px, 9999px, 53px, 0); }
+            60% { clip: rect(118px, 9999px, 47px, 0); }
+            80% { clip: rect(91px, 9999px, 113px, 0); }
+            100% { clip: rect(45px, 9999px, 100px, 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(101px, 9999px, 53px, 0); }
+            20% { clip: rect(24px, 9999px, 65px, 0); }
+            40% { clip: rect(38px, 9999px, 63px, 0); }
+            60% { clip: rect(34px, 9999px, 26px, 0); }
+            80% { clip: rect(81px, 9999px, 105px, 0); }
+            100% { clip: rect(31px, 9999px, 3px, 0); }
+        }
+        .terminal-box {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ffc3;
+            box-shadow: 0 0 20px rgba(0, 255, 195, 0.3);
+        }
+        .terminal-header {
+            background: linear-gradient(90deg, #00ffc3, #ff00c3);
+            height: 10px;
+        }
+        .power-btn {
+            background: #ff5e5e;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .terminal-text {
+            color: #00ffc3;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .token-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid #ff00c3;
+            transition: all 0.3s;
+        }
+        .token-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 0, 195, 0.3);
+        }
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .marquee span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 15s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Party Mode Canvas -->
+    <canvas id="partyCanvas"></canvas>
+
+    <!-- Header -->
+    <header class="border-b border-purple-900 py-4 relative">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center text-black punk-font">
+                    A
+                </div>
+                <h1 class="glitch punk-font text-2xl" data-text="ALGORANARCHY">ALGORANARCHY</h1>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#dashboard" class="text-cyan-300 hover:text-pink-500 transition-all">DASHBOARD</a>
+                <a href="#blocks" class="text-cyan-300 hover:text-pink-500 transition-all">BLOCKS</a>
+                <a href="#tokens" class="text-cyan-300 hover:text-pink-500 transition-all">TOKENS</a>
+                <a href="#nodes" class="text-cyan-300 hover:text-pink-500 transition-all">NODES</a>
+                <a href="#docs" class="text-cyan-300 hover:text-pink-500 transition-all">DOCS</a>
+            </nav>
+            <button id="menuBtn" class="md:hidden text-cyan-300">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden absolute top-full left-0 right-0 bg-black z-50 py-4 border-b border-purple-900">
+            <div class="container mx-auto px-4 flex flex-col space-y-4">
+                <a href="#dashboard" class="text-cyan-300 hover:text-pink-500 transition-all">DASHBOARD</a>
+                <a href="#blocks" class="text-cyan-300 hover:text-pink-500 transition-all">BLOCKS</a>
+                <a href="#tokens" class="text-cyan-300 hover:text-pink-500 transition-all">TOKENS</a>
+                <a href="#nodes" class="text-cyan-300 hover:text-pink-500 transition-all">NODES</a>
+                <a href="#docs" class="text-cyan-300 hover:text-pink-500 transition-all">DOCS</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ticker -->
+    <div class="bg-black py-2 border-b border-purple-900 overflow-hidden">
+        <div class="marquee">
+            <span class="text-pink-400">
+                <i class="fas fa-bolt mr-2"></i> ALGO PRICE: $0.18 | BLOCK HEIGHT: 24,832,415 | TRANSACTIONS (24H): 3,451,217 | CIRCULATING SUPPLY: 7,300,000,000 ALGO | MARKET CAP: $1,330,000,000 | 24H VOLUME: $42,000,000 
+                <span class="text-cyan-300 ml-4">⚡</span> ROCK THE BLOCKCHAIN 
+                <span class="text-pink-500 ml-4">⚡</span> PURE PROOF OF STAKE 
+                <span class="text-cyan-300 ml-4">⚡</span> CARBON NEGATIVE 
+                <span class="text-pink-500 ml-4">⚡</span> FAST AND SCALABLE
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <section id="dashboard" class="mb-16">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-10">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="punk-font text-3xl md:text-5xl mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500">
+                        PUNK ROCK <span class="text-white">MEETS</span> BLOCKCHAIN
+                    </h2>
+                    <p class="mb-6 text-gray-300 leading-relaxed">
+                        Welcome to the most rebellious Algorand dashboard on the web. 
+                        We're here to break the rules of traditional blockchain explorers 
+                        with our in-your-face interface and hardcore data visualization.
+                    </p>
+                    <div class="flex space-x-4">
+                        <button class="bg-gradient-to-r from-cyan-500 to-purple-600 px-6 py-3 rounded-lg hover:opacity-90 transition-all">
+                            <i class="fas fa-rocket mr-2"></i> ROCK THE CHAIN
+                        </button>
+                        <button class="border border-cyan-400 text-cyan-400 px-6 py-3 rounded-lg hover:bg-cyan-900 hover:bg-opacity-30 transition-all">
+                            <i class="fas fa-code mr-2"></i> DEV TOOLS
+                        </button>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="terminal-box w-full max-w-lg relative overflow-hidden">
+                        <div class="terminal-header flex items-center px-4 py-2">
+                            <div class="power-btn mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            <div class="flex-1"></div>
+                            <div class="text-xs text-white">~/algorand/terminal</div>
+                        </div>
+                        <div class="p-4 terminal-text text-sm font-mono h-64 overflow-y-auto">
+                            <div>> Initializing Algorand Node Interface...</div>
+                            <div class="text-green-400">√ Connection established to MainNet ✓</div>
+                            <div>> Fetching latest block data...</div>
+                            <div class="text-green-400">√ Block #24832415 loaded ✓</div>
+                            <div>> Analyzing chain performance...</div>
+                            <div class="text-green-400">√ TPS: 1,200 ✓ Latency: 3.8s ✓</div>
+                            <div>> Checking smart contracts...</div>
+                            <div class="text-green-400">√ 142 new contracts deployed in last hour ✓</div>
+                            <div>> Calculating APY...</div>
+                            <div class="text-green-400">√ Current estimate: 6.8% ✓</div>
+                            <div>> Gathering token data...</div>
+                            <div class="text-green-400">√ Top token: USDC (24h vol: $12.4M) ✓</div>
+                            <div>> <span class="blink">_</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-cyan-900 hover:border-cyan-400 transition-all">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-400 text-sm">BLOCK HEIGHT</h3>
+                        <i class="fas fa-cube text-cyan-400"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-cyan-400">24,832,415</div>
+                    <div class="text-green-400 text-sm mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i> 4.2% (24h)
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-pink-900 hover:border-pink-400 transition-all">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-400 text-sm">TRANSACTIONS (24H)</h3>
+                        <i class="fas fa-exchange-alt text-pink-400"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-pink-400">3,451,217</div>
+                    <div class="text-green-400 text-sm mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i> 7.8% (24h)
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-purple-900 hover:border-purple-400 transition-all">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-400 text-sm">ALGO PRICE</h3>
+                        <i class="fas fa-dollar-sign text-purple-400"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-purple-400">$0.18</div>
+                    <div class="text-red-400 text-sm mt-2">
+                        <i class="fas fa-arrow-down mr-1"></i> 1.3% (24h)
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-xl border border-yellow-900 hover:border-yellow-400 transition-all">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-400 text-sm">NODE COUNT</h3>
+                        <i class="fas fa-server text-yellow-400"></i>
+                    </div>
+                    <div class="text-3xl font-bold text-yellow-400">1,842</div>
+                    <div class="text-green-400 text-sm mt-2">
+                        <i class="fas fa-arrow-up mr-1"></i> 2.1% (30d)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blocks Section -->
+        <section id="blocks" class="mb-16">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="punk-font text-3xl text-white flex items-center">
+                    <span class="bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text">LATEST BLOCKS</span>
+                    <span class="ml-4 text-cyan-300 text-xl animate-pulse">LIVE</span>
+                </h2>
+                <button class="border border-cyan-400 text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-900 hover:bg-opacity-30 transition-all flex items-center">
+                    <i class="fas fa-redo mr-2"></i> REFRESH
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-900">
+                        <tr class="text-left text-gray-400">
+                            <th class="px-6 py-4">HEIGHT</th>
+                            <th class="px-6 py-4">TIMESTAMP</th>
+                            <th class="px-6 py-4">TRANSACTIONS</th>
+                            <th class="px-6 py-4">BLOCK HASH</th>
+                            <th class="px-6 py-4">REWARD</th>
+                            <th class="px-6 py-4"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-800">
+                        <!-- Block Row -->
+                        <tr class="hover:bg-gray-900 transition-all">
+                            <td class="px-6 py-4 text-cyan-400 font-mono">24,832,415</td>
+                            <td class="px-6 py-4">3 seconds ago</td>
+                            <td class="px-6 py-4">128</td>
+                            <td class="px-6 py-4 font-mono text-sm">7FZbG...k9qTp</td>
+                            <td class="px-6 py-4">7.34 ALGO</td>
+                            <td class="px-6 py-4">
+                                <button class="text-pink-400 hover:text-pink-300 transition-all">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Block Row -->
+                        <tr class="hover:bg-gray-900 transition-all">
+                            <td class="px-6 py-4 text-cyan-400 font-mono">24,832,414</td>
+                            <td class="px-6 py-4">46 seconds ago</td>
+                            <td class="px-6 py-4">96</td>
+                            <td class="px-6 py-4 font-mono text-sm">5TyXh...w7QvE</td>
+                            <td class="px-6 py-4">7.32 ALGO</td>
+                            <td class="px-6 py-4">
+                                <button class="text-pink-400 hover:text-pink-300 transition-all">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Block Row -->
+                        <tr class="hover:bg-gray-900 transition-all">
+                            <td class="px-6 py-4 text-cyan-400 font-mono">24,832,413</td>
+                            <td class="px-6 py-4">1 min 29s ago</td>
+                            <td class="px-6 py-4">142</td>
+                            <td class="px-6 py-4 font-mono text-sm">8KjRm...p2LsN</td>
+                            <td class="px-6 py-4">7.30 ALGO</td>
+                            <td class="px-6 py-4">
+                                <button class="text-pink-400 hover:text-pink-300 transition-all">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Block Row -->
+                        <tr class="hover:bg-gray-900 transition-all">
+                            <td class="px-6 py-4 text-cyan-400 font-mono">24,832,412</td>
+                            <td class="px-6 py-4">2 min 12s ago</td>
+                            <td class="px-6 py-4">87</td>
+                            <td class="px-6 py-4 font-mono text-sm">3QvFy...g9HjK</td>
+                            <td class="px-6 py-4">7.28 ALGO</td>
+                            <td class="px-6 py-4">
+                                <button class="text-pink-400 hover:text-pink-300 transition-all">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Block Row -->
+                        <tr class="hover:bg-gray-900 transition-all">
+                            <td class="px-6 py-4 text-cyan-400 font-mono">24,832,411</td>
+                            <td class="px-6 py-4">2 min 55s ago</td>
+                            <td class="px-6 py-4">153</td>
+                            <td class="px-6 py-4 font-mono text-sm">2GbLp...m7VfD</td>
+                            <td class="px-6 py-4">7.26 ALGO</td>
+                            <td class="px-6 py-4">
+                                <button class="text-pink-400 hover:text-pink-300 transition-all">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tokens Section -->
+        <section id="tokens" class="mb-16">
+            <h2 class="punk-font text-3xl text-white mb-8">
+                <span class="bg-gradient-to-r from-pink-500 to-purple-600 text-transparent bg-clip-text">TOP TOKENS</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Token Card -->
+                <div class="token-card p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-300 rounded-full flex items-center justify-center text-white">
+                                <i class="fab fa-usd"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="font-bold">USDC</h3>
+                                <p class="text-gray-400 text-sm">USD Coin</p>
+                            </div>
+                        </div>
+                        <div class="text-green-400">
+                            <i class="fas fa-arrow-up"></i> 0.1%
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-2xl font-bold">$0.999</div>
+                        <div class="text-sm text-gray-400">Price</div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-xl font-mono">12.4M</div>
+                        <div class="text-sm text-gray-400">Volume (24h)</div>
+                    </div>
+                    <button class="w-full py-2 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-900 hover:bg-opacity-30 transition-all">
+                        TRADE
+                    </button>
+                </div>
+                
+                <!-- Token Card -->
+                <div class="token-card p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-300 rounded-full flex items-center justify-center text-white">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="font-bold">USDT</h3>
+                                <p class="text-gray-400 text-sm">Tether USD</p>
+                            </div>
+                        </div>
+                        <div class="text-red-400">
+                            <i class="fas fa-arrow-down"></i> 0.2%
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-2xl font-bold">$0.998</div>
+                        <div class="text-sm text-gray-400">Price</div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-xl font-mono">8.7M</div>
+                        <div class="text-sm text-gray-400">Volume (24h)</div>
+                    </div>
+                    <button class="w-full py-2 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-900 hover:bg-opacity-30 transition-all">
+                        TRADE
+                    </button>
+                </div>
+                
+                <!-- Token Card -->
+                <div class="token-card p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-300 rounded-full flex items-center justify-center text-white">
+                                <i class="fab fa-ethereum"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="font-bold">goETH</h3>
+                                <p class="text-gray-400 text-sm">Goerli ETH</p>
+                            </div>
+                        </div>
+                        <div class="text-green-400">
+                            <i class="fas fa-arrow-up"></i> 1.5%
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-2xl font-bold">$1,827</div>
+                        <div class="text-sm text-gray-400">Price</div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-xl font-mono">5.2M</div>
+                        <div class="text-sm text-gray-400">Volume (24h)</div>
+                    </div>
+                    <button class="w-full py-2 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-900 hover:bg-opacity-30 transition-all">
+                        TRADE
+                    </button>
+                </div>
+                
+                <!-- Token Card -->
+                <div class="token-card p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-yellow-300 rounded-full flex items-center justify-center text-white">
+                                <i class="fab fa-bitcoin"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="font-bold">goBTC</h3>
+                                <p class="text-gray-400 text-sm">Goerli BTC</p>
+                            </div>
+                        </div>
+                        <div class="text-green-400">
+                            <i class="fas fa-arrow-up"></i> 2.3%
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-2xl font-bold">$30,458</div>
+                        <div class="text-sm text-gray-400">Price</div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-xl font-mono">4.1M</div>
+                        <div class="text-sm text-gray-400">Volume (24h)</div>
+                    </div>
+                    <button class="w-full py-2 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-900 hover:bg-opacity-30 transition-all">
+                        TRADE
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nodes Section -->
+        <section id="nodes" class="mb-16">
+            <h2 class="punk-font text-3xl text-white mb-8 flex items-center">
+                <span class="bg-gradient-to-r from-cyan-400 to-purple-600 text-transparent bg-clip-text">NODE NETWORK</span>
+                <span class="ml-4 text-xs bg-cyan-600 text-black px-3 py-1 rounded-full">1,842 ACTIVE NODES</span>
+            </h2>
+            
+            <div class="bg-gray-900 bg-opacity-50 rounded-xl p-6">
+                <div class="h-96 w-full relative">
+                    <!-- This would be a map visualization in a real app -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-globe-americas text-6xl text-cyan-400 mb-4"></i>
+                            <h3 class="text-xl font-bold mb-2">GLOBAL NODE DISTRIBUTION</h3>
+                            <p class="text-gray-400 max-w-md mx-auto">
+                                Visualizing the decentralized network of Algorand nodes across the world.
+                                Each point represents an active node maintaining the blockchain.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div class="bg-gray-900 p-6 rounded-xl border border-gray-800">
+                        <h3 class="text-cyan-400 mb-4 text-lg">NODE HEALTH</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Uptime</span>
+                                    <span>99.98%</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 99.98%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Synchronization</span>
+                                    <span>100%</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span>Latency</span>
+                                    <span>2.7ms</span>
+                                </div>
+                                <div class="w-full bg-gray-800 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: 95%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-900 p-6 rounded-xl border border-gray-800">
+                        <h3 class="text-pink-400 mb-4 text-lg">PARTICIPATION</h3>
+                        <div class="flex justify-center mb-6">
+                            <div class="relative w-40 h-40">
+                                <svg class="w-full h-full" viewBox="0 0 100 100">
+                                    <!-- Background circle -->
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#2d3748" stroke-width="8"></circle>
+                                    <!-- Progress circle -->
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="#ec4899" stroke-width="8" 
+                                            stroke-dasharray="282.743" 
+                                            stroke-dashoffset="56.5487" 
+                                            stroke-linecap="round"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                    <span class="text-2xl font-bold">80%</span>
+                                    <span class="text-xs text-gray-400">Nodes</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center text-gray-300">
+                            <p>80% of nodes actively participate in consensus (1,473 nodes)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-900 p-6 rounded-xl border border-gray-800">
+                        <h3 class="text-yellow-400 mb-4 text-lg">GEO DISTRIBUTION</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">North America</span>
+                                <span class="font-mono">642</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">Europe</span>
+                                <span class="font-mono">573</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">Asia</span>
+                                <span class="font-mono">387</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">South America</span>
+                                <span class="font-mono">132</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">Africa</span>
+                                <span class="font-mono">64</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-300">Oceania</span>
+                                <span class="font-mono">44</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800 py-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <h3 class="text-white text-lg mb-4 flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center text-black punk-font mr-2">
+                            A
+                        </div>
+                        ALGORANARCHY
+                    </h3>
+                    <p class="text-gray-400">
+                        The most punk rock Algorand explorer on the blockchain. 
+                        Keeping it decentralized, secure, and fast since day one.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg mb-4">EXPLORE</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 transition-all">Dashboard</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 transition-all">Blocks</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 transition-all">Transactions</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 transition-all">Tokens</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-cyan-300 transition-all">Nodes</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg mb-4">DEVELOPERS</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-pink-300 transition-all">API Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-pink-300 transition-all">SDKs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-pink-300 transition-all">Smart Contracts</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-pink-300 transition-all">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-pink-300 transition-all">Github</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white text-lg mb-4">COMMUNITY</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 hover:text-cyan-400 hover:bg-cyan-900 hover:bg-opacity-30 transition-all">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 hover:text-pink-400 hover:bg-pink-900 hover:bg-opacity-30 transition-all">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 hover:text-purple-400 hover:bg-purple-900 hover:bg-opacity-30 transition-all">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-gray-300 hover:text-red-400 hover:bg-red-900 hover:bg-opacity-30 transition-all">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                    <div class="text-gray-400">
+                        <i class="fas fa-envelope mr-2"></i> hello@algoranarchy.io
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-500 text-sm mb-4 md:mb-0">
+                    © 2023 ALGORANARCHY. All rights reserved. Not affiliated with Algorand Foundation.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-white transition-all text-sm">Terms</a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-all text-sm">Privacy</a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-all text-sm">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Party Mode Toggle -->
+    <div class="fixed bottom-6 right-6">
+        <button id="partyModeBtn" class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white shadow-lg hover:opacity-90 transition-all transform hover:scale-105">
+            <i class="fas fa-glass-cheers text-2xl"></i>
+        </button>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Party mode
+        const partyModeBtn = document.getElementById('partyModeBtn');
+        let partyMode = false;
+        let canvas = document.getElementById('partyCanvas');
+        let ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        let particles = [];
+        const colors = ['#FF00C3', '#00FFC3', '#00FFF9', '#FBFF00', '#9D00FF'];
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.opacity = Math.random() * 0.6 + 0.2;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x < 0 || this.x > canvas.width) {
+                    this.speedX = -this.speedX;
+                }
+                
+                if (this.y < 0 || this.y > canvas.height) {
+                    this.speedY = -this.speedY;
+                }
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 0.3;
+            }
+        }
+        
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animateParticles() {
+            if (!partyMode) return;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = particles[i].color;
+                        ctx.globalAlpha = 0.2 * (1 - distance / 100);
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                        ctx.globalAlpha = 0.3;
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        partyModeBtn.addEventListener('click', () => {
+            partyMode = !partyMode;
+            
+            if (partyMode) {
+                initParticles();
+                animateParticles();
+                document.body.style.background = 'linear-gradient(rgba(10,10,10,0.9), rgba(10,10,10,0.9))';
+                canvas.style.opacity = '0.5';
+                partyModeBtn.innerHTML = '<i class="fas fa-times text-2xl"></i>';
+                partyModeBtn.classList.remove('from-pink-500', 'to-purple-600');
+                partyModeBtn.classList.add('from-purple-600', 'to-pink-500');
+            } else {
+                document.body.style.background = '#0a0a0a';
+                canvas.style.opacity = '0.3';
+                partyModeBtn.innerHTML = '<i class="fas fa-glass-cheers text-2xl"></i>';
+                partyModeBtn.classList.remove('from-purple-600', 'to-pink-500');
+                partyModeBtn.classList.add('from-pink-500', 'to-purple-600');
+            }
+        });
+        
+        // Simulate terminal typing
+        const terminalLines = [
+            "> Connecting to Algorand node...",
+            "√ Established secure connection",
+            "> Syncing latest blocks...",
+            "√ Sync complete (3.2s)",
+            "> Analyzing transactions...",
+            "√ 128 new transactions in block #24832415",
+            "> Checking consensus participation...",
+            "√ 83.7% participation rate",
+            "> Calculating annual rewards...",
+            "√ Estimated 6.4-7.2% APY",
+            "> Monitoring network health...",
+            "√ All systems optimal",
+            "> Preparing real-time updates...",
+            "√ Ready for your commands"
+        ];
+        
+        const terminal = document.querySelector('.terminal-text');
+        let currentLine = 0;
+        
+        function typeTerminal() {
+            if (currentLine < terminalLines.length) {
+                const line = terminalLines[currentLine];
+                const p = document.createElement('div');
+                p.className = line.startsWith('√') ? 'text-green-400' : '';
+                
+                if (line.startsWith('>')) {
+                    terminal.querySelector('.blink')?.remove();
+                }
+                
+                terminal.appendChild(p);
+                
+                let i = 0;
+                const typing = setInterval(() => {
+                    p.textContent = line.substring(0, i);
+                    i++;
+                    
+                    if (i > line.length) {
+                        clearInterval(typing);
+                        currentLine++;
+                        
+                        if (line.startsWith('>')) {
+                            const blink = document.createElement('span');
+                            blink.className = 'blink ml-1';
+                            blink.textContent = '_';
+                            terminal.appendChild(blink);
+                        }
+                        
+                        setTimeout(typeTerminal, Math.random() * 1000 + 500);
+                    }
+                }, 20);
+            }
+        }
+        
+        // Start typing after a delay
+        setTimeout(typeTerminal, 1000);
+        
+        // Scroll animation for sections
+        const sections = document.querySelectorAll('section');
+        window.addEventListener('scroll', () => {
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                const scrollPosition = window.scrollY;
+                
+                if (scrollPosition > sectionTop - window.innerHeight + sectionHeight * 0.3) {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }
+            });
+        });
+        
+        // Apply initial styles for scroll animation
+        sections.forEach((section, index) => {
+            section.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+        });
+        
+        // Trigger the initial scroll check on load
+        window.dispatchEvent(new Event('scroll'));
+    </script>
+</body>
+</html>
