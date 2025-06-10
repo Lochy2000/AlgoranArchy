@@ -55,7 +55,7 @@ export const Footer: React.FC = () => {
             </div>
             <div className="text-gray-400 flex items-center">
               <Mail className="w-4 h-4 mr-2" />
-              hello@algoranarchy.io
+              lochlann_oht@hotmail.com
             </div>
           </div>
         </div>
