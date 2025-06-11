@@ -10,34 +10,43 @@ import { Footer } from './components/Footer';
 import { PartyMode } from './components/PartyMode';
 import { WalletModal } from './components/WalletModal';
 import { DebugPanel } from './components/DebugPanel';
-import { TradingModal } from './components/TradingModal';
+import { EnhancedTradingModal } from './components/EnhancedTradingModal';
+import { TransactionModal } from './components/TransactionModal';
 import { AccountModal } from './components/AccountModal';
-import { useAlgorandStore } from './store/algorandStore';
+import { useEnhancedAlgorandStore } from './store/enhancedAlgorandStore';
 import { WalletService } from './services/walletService';
-import { Rocket, Code, ExternalLink, Wallet } from 'lucide-react';
+import { Rocket, Code, ExternalLink, Wallet, Search } from 'lucide-react';
 
 function App() {
   const { 
     connectedAccount, 
     fetchNodeStatus, 
     fetchLedgerSupply, 
+    fetchLatestBlocks,
+    fetchLatestTransactions,
+    fetchTopAssets,
+    fetchDexPools,
     setConnectedAccount,
     fetchAccount,
+    startRealTimeUpdates,
+    stopRealTimeUpdates,
     error,
     clearError 
-  } = useAlgorandStore();
+  } = useEnhancedAlgorandStore();
   
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isTradingModalOpen, setIsTradingModalOpen] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
     // Initialize data on app load
-    console.log('🚀 Initializing Algoranarchy app...');
+    console.log('🚀 Initializing Enhanced Algoranarchy app...');
     console.log('Environment check:', {
-      token: import.meta.env.VITE_ALGO_API_TOKEN ? 'Present' : 'Missing',
+      algoToken: import.meta.env.VITE_ALGO_API_TOKEN ? 'Present' : 'Missing',
+      moralisKey: import.meta.env.VITE_MORALIS_API_KEY ? 'Present' : 'Missing',
       nodeUrl: import.meta.env.VITE_ALGO_NODE_MAINNET,
       indexerUrl: import.meta.env.VITE_ALGO_INDEXER_MAINNET,
       debugMode: import.meta.env.VITE_DEBUG_MODE
@@ -46,9 +55,32 @@ function App() {
     // Initialize wallet services
     WalletService.initializeWallets();
     
-    fetchNodeStatus();
-    fetchLedgerSupply();
-  }, [fetchNodeStatus, fetchLedgerSupply]);
+    // Fetch initial data
+    const initializeData = async () => {
+      try {
+        await Promise.all([
+          fetchNodeStatus(),
+          fetchLedgerSupply(),
+          fetchLatestBlocks(10),
+          fetchLatestTransactions(20),
+          fetchTopAssets(20),
+          fetchDexPools()
+        ]);
+        
+        // Start real-time updates
+        startRealTimeUpdates();
+      } catch (error) {
+        console.error('Failed to initialize data:', error);
+      }
+    };
+
+    initializeData();
+
+    // Cleanup on unmount
+    return () => {
+      stopRealTimeUpdates();
+    };
+  }, []);
 
   const handleConnectWallet = () => {
     setConnectionError(null);
@@ -183,6 +215,10 @@ function App() {
     setIsTradingModalOpen(true);
   };
 
+  const handleSearchTransactions = () => {
+    setIsTransactionModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white font-mono relative overflow-x-hidden">
       <PartyMode />
@@ -220,13 +256,22 @@ function App() {
           <div className="bg-green-900/50 border border-green-500 text-green-200 px-4 py-3 mx-4 mt-4 rounded-lg">
             <div className="flex justify-between items-center">
               <span>✅ Wallet connected successfully!</span>
-              <button 
-                onClick={() => setIsAccountModalOpen(true)}
-                className="text-green-400 hover:text-green-200 flex items-center"
-              >
-                <Wallet className="w-4 h-4 mr-1" />
-                View Account
-              </button>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={() => setIsAccountModalOpen(true)}
+                  className="text-green-400 hover:text-green-200 flex items-center text-sm"
+                >
+                  <Wallet className="w-4 h-4 mr-1" />
+                  View Account
+                </button>
+                <button 
+                  onClick={handleSearchTransactions}
+                  className="text-green-400 hover:text-green-200 flex items-center text-sm"
+                >
+                  <Search className="w-4 h-4 mr-1" />
+                  Search Transactions
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -238,34 +283,34 @@ function App() {
               <div className="md:w-1/2 mb-8 md:mb-0">
                 <h2 className="font-bold text-3xl md:text-5xl mb-4">
                   <span className="bg-gradient-to-r from-cyan-400 to-pink-500 text-transparent bg-clip-text">
-                    ALGORAND
+                    ENHANCED
                   </span>
-                  <span className="text-white"> BLOCKCHAIN </span>
+                  <span className="text-white"> ALGORAND </span>
                   <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-transparent bg-clip-text">
                     EXPLORER
                   </span>
                 </h2>
                 <p className="mb-6 text-gray-300 leading-relaxed">
-                  ALGORANARCHY is your gateway to the Algorand ecosystem. Explore real-time blockchain data, 
-                  connect your wallet, trade tokens, and monitor network health - all with a rebellious punk rock interface 
-                  that breaks the mold of traditional blockchain explorers.
+                  ALGORANARCHY is your comprehensive gateway to the Algorand ecosystem. Explore real-time blockchain data, 
+                  connect multiple wallets, get the best trading quotes across DEXs, search transactions, and monitor 
+                  network health - all with our rebellious punk rock interface that breaks the mold.
                 </p>
                 <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center text-cyan-400">
                     <div className="w-2 h-2 bg-cyan-400 rounded-full mr-3"></div>
-                    Real-time blockchain data
+                    Real-time blockchain data & analytics
                   </div>
                   <div className="flex items-center text-pink-400">
                     <div className="w-2 h-2 bg-pink-400 rounded-full mr-3"></div>
-                    Multi-wallet support
+                    Multi-wallet support (Pera, MyAlgo)
                   </div>
                   <div className="flex items-center text-purple-400">
                     <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
-                    DEX integration & trading
+                    Best quotes across all DEXs
                   </div>
                   <div className="flex items-center text-yellow-400">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full mr-3"></div>
-                    Network analytics
+                    Transaction search & explorer
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
@@ -286,16 +331,20 @@ function App() {
                     <ExternalLink className="w-4 h-4 ml-2" />
                   </button>
                 </div>
-                {!connectedAccount && (
-                  <div className="mt-4">
-                    <button 
-                      onClick={handleStartTrading}
-                      className="text-sm bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg transition-all"
-                    >
-                      Start Trading →
-                    </button>
-                  </div>
-                )}
+                <div className="mt-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                  <button 
+                    onClick={handleStartTrading}
+                    className="text-sm bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg transition-all"
+                  >
+                    Enhanced Trading →
+                  </button>
+                  <button 
+                    onClick={handleSearchTransactions}
+                    className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-all"
+                  >
+                    Search Transactions →
+                  </button>
+                </div>
               </div>
               
               <div className="md:w-1/2 flex justify-center">
@@ -323,9 +372,14 @@ function App() {
         onConnect={handleWalletConnect}
       />
 
-      <TradingModal 
+      <EnhancedTradingModal 
         isOpen={isTradingModalOpen}
         onClose={() => setIsTradingModalOpen(false)}
+      />
+
+      <TransactionModal
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
       />
 
       <AccountModal
