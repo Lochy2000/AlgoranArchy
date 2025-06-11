@@ -11,9 +11,10 @@ import { PartyMode } from './components/PartyMode';
 import { WalletModal } from './components/WalletModal';
 import { DebugPanel } from './components/DebugPanel';
 import { TradingModal } from './components/TradingModal';
+import { AccountModal } from './components/AccountModal';
 import { useAlgorandStore } from './store/algorandStore';
 import { WalletService } from './services/walletService';
-import { Rocket, Code, ExternalLink } from 'lucide-react';
+import { Rocket, Code, ExternalLink, Wallet } from 'lucide-react';
 
 function App() {
   const { 
@@ -21,13 +22,16 @@ function App() {
     fetchNodeStatus, 
     fetchLedgerSupply, 
     setConnectedAccount,
+    fetchAccount,
     error,
     clearError 
   } = useAlgorandStore();
   
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isTradingModalOpen, setIsTradingModalOpen] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
     // Initialize data on app load
@@ -47,11 +51,14 @@ function App() {
   }, [fetchNodeStatus, fetchLedgerSupply]);
 
   const handleConnectWallet = () => {
+    setConnectionError(null);
     setIsWalletModalOpen(true);
   };
 
   const handleWalletConnect = async (walletType: 'pera' | 'myalgo' | 'demo') => {
     setIsConnecting(true);
+    setConnectionError(null);
+    
     try {
       console.log(`🔗 Connecting to ${walletType} wallet...`);
       
@@ -71,33 +78,94 @@ function App() {
         
         setConnectedAccount(mockAccount);
         console.log('✅ Demo wallet connected:', mockAccount);
+        
       } else if (walletType === 'pera') {
         try {
           const result = await WalletService.connectPeraWallet();
+          console.log('✅ Pera wallet connection result:', result);
+          
           // Fetch account info for the connected address
-          const accountInfo = await useAlgorandStore.getState().fetchAccount(result.selectedAccount);
-          console.log('✅ Pera wallet connected:', result.selectedAccount);
+          try {
+            const accountInfo = await fetchAccount(result.selectedAccount);
+            console.log('✅ Account info fetched:', accountInfo);
+          } catch (accountError) {
+            console.warn('⚠️ Could not fetch account info, using basic account data');
+            // Create basic account object if fetch fails
+            setConnectedAccount({
+              address: result.selectedAccount,
+              amount: 0,
+              'amount-without-pending-rewards': 0,
+              'min-balance': 100000,
+              'pending-rewards': 0,
+              'reward-base': 0,
+              'rewards-total': 0,
+              round: 0,
+              status: 'Online'
+            });
+          }
+          
         } catch (error) {
           console.error('❌ Pera wallet connection failed:', error);
           throw error;
         }
+        
       } else if (walletType === 'myalgo') {
         try {
           const result = await WalletService.connectMyAlgoWallet();
+          console.log('✅ MyAlgo wallet connection result:', result);
+          
           // Fetch account info for the connected address
-          const accountInfo = await useAlgorandStore.getState().fetchAccount(result.selectedAccount);
-          console.log('✅ MyAlgo wallet connected:', result.selectedAccount);
+          try {
+            const accountInfo = await fetchAccount(result.selectedAccount);
+            console.log('✅ Account info fetched:', accountInfo);
+          } catch (accountError) {
+            console.warn('⚠️ Could not fetch account info, using basic account data');
+            // Create basic account object if fetch fails
+            setConnectedAccount({
+              address: result.selectedAccount,
+              amount: 0,
+              'amount-without-pending-rewards': 0,
+              'min-balance': 100000,
+              'pending-rewards': 0,
+              'reward-base': 0,
+              'rewards-total': 0,
+              round: 0,
+              status: 'Online'
+            });
+          }
+          
         } catch (error) {
           console.error('❌ MyAlgo wallet connection failed:', error);
           throw error;
         }
       }
+      
+      setIsWalletModalOpen(false);
+      
     } catch (error) {
       console.error('❌ Failed to connect wallet:', error);
-      // Show user-friendly error
-      alert(`Failed to connect ${walletType} wallet: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setConnectionError(errorMessage);
+      
+      // Don't close modal on error, let user try again
     } finally {
       setIsConnecting(false);
+    }
+  };
+
+  const handleDisconnectWallet = async () => {
+    try {
+      await WalletService.disconnectWallet();
+      setConnectedAccount(null);
+      console.log('🔌 Wallet disconnected');
+    } catch (error) {
+      console.error('❌ Error disconnecting wallet:', error);
+    }
+  };
+
+  const handleAccountClick = () => {
+    if (connectedAccount) {
+      setIsAccountModalOpen(true);
     }
   };
 
@@ -123,17 +191,41 @@ function App() {
         <Header 
           onConnectWallet={handleConnectWallet}
           connectedAddress={connectedAccount?.address}
+          onAccountClick={handleAccountClick}
+          onDisconnectWallet={handleDisconnectWallet}
         />
         
         <Ticker />
         
         {/* Error Display */}
-        {error && (
+        {(error || connectionError) && (
           <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 mx-4 mt-4 rounded-lg">
             <div className="flex justify-between items-center">
-              <span>⚠️ {error}</span>
-              <button onClick={clearError} className="text-red-400 hover:text-red-200">
+              <span>⚠️ {error || connectionError}</span>
+              <button 
+                onClick={() => {
+                  clearError();
+                  setConnectionError(null);
+                }} 
+                className="text-red-400 hover:text-red-200"
+              >
                 ×
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Connection Success Message */}
+        {connectedAccount && !error && !connectionError && (
+          <div className="bg-green-900/50 border border-green-500 text-green-200 px-4 py-3 mx-4 mt-4 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span>✅ Wallet connected successfully!</span>
+              <button 
+                onClick={() => setIsAccountModalOpen(true)}
+                className="text-green-400 hover:text-green-200 flex items-center"
+              >
+                <Wallet className="w-4 h-4 mr-1" />
+                View Account
               </button>
             </div>
           </div>
@@ -224,13 +316,23 @@ function App() {
 
       <WalletModal 
         isOpen={isWalletModalOpen}
-        onClose={() => setIsWalletModalOpen(false)}
+        onClose={() => {
+          setIsWalletModalOpen(false);
+          setConnectionError(null);
+        }}
         onConnect={handleWalletConnect}
       />
 
       <TradingModal 
         isOpen={isTradingModalOpen}
         onClose={() => setIsTradingModalOpen(false)}
+      />
+
+      <AccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+        account={connectedAccount}
+        onDisconnect={handleDisconnectWallet}
       />
 
       {/* Debug Panel - only show in development */}

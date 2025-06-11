@@ -1,4 +1,4 @@
-// Wallet service with proper SDK integration and error handling
+// Enhanced wallet service with better error handling and connection flow
 interface WalletAccount {
   address: string;
   name?: string;
@@ -13,6 +13,7 @@ export class WalletService {
   private static peraWallet: any = null;
   private static myAlgoConnect: any = null;
   private static isInitialized = false;
+  private static connectedWallet: 'pera' | 'myalgo' | 'demo' | null = null;
 
   static async initializeWallets() {
     if (this.isInitialized) return;
@@ -22,12 +23,23 @@ export class WalletService {
       
       // Try to import Pera Wallet
       try {
-        // Check if running in browser environment
         if (typeof window !== 'undefined') {
+          // Check if Pera Wallet is available
           const { PeraWalletConnect } = await import('@perawallet/connect');
           this.peraWallet = new PeraWalletConnect({
-            bridge: import.meta.env.VITE_PERA_WALLET_BRIDGE_URL
+            bridge: import.meta.env.VITE_PERA_WALLET_BRIDGE_URL || 'https://bridge.walletconnect.org'
           });
+          
+          // Set up reconnection handler
+          this.peraWallet.reconnectSession().then((accounts: string[]) => {
+            if (accounts.length > 0) {
+              console.log('🔄 Pera Wallet auto-reconnected:', accounts[0]);
+              this.connectedWallet = 'pera';
+            }
+          }).catch((error: any) => {
+            console.log('No existing Pera Wallet session');
+          });
+          
           console.log('✅ Pera Wallet SDK loaded');
         }
       } catch (error) {
@@ -59,7 +71,19 @@ export class WalletService {
       }
       
       console.log('🔗 Connecting to Pera Wallet...');
+      
+      // Disconnect any existing session first
+      await this.peraWallet.disconnect();
+      
+      // Connect to Pera Wallet
       const accounts = await this.peraWallet.connect();
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts returned from Pera Wallet');
+      }
+      
+      this.connectedWallet = 'pera';
+      console.log('✅ Pera Wallet connected successfully:', accounts[0]);
       
       return { 
         accounts: accounts.map((addr: string) => ({ address: addr })), 
@@ -67,7 +91,15 @@ export class WalletService {
       };
     } catch (error) {
       console.error('❌ Pera Wallet connection failed:', error);
-      throw new Error(`Failed to connect Pera Wallet: ${error.message}`);
+      
+      // Handle specific Pera Wallet errors
+      if (error.message.includes('User rejected')) {
+        throw new Error('Connection was cancelled by user.');
+      } else if (error.message.includes('Modal closed')) {
+        throw new Error('Pera Wallet modal was closed. Please try again.');
+      } else {
+        throw new Error(`Failed to connect Pera Wallet: ${error.message}`);
+      }
     }
   }
 
@@ -78,7 +110,19 @@ export class WalletService {
       }
       
       console.log('🔗 Connecting to MyAlgo Wallet...');
-      const accounts = await this.myAlgoConnect.connect();
+      
+      // Connect with specific settings
+      const accounts = await this.myAlgoConnect.connect({
+        shouldSelectOneAccount: false,
+        openManager: true
+      });
+      
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts returned from MyAlgo Connect');
+      }
+      
+      this.connectedWallet = 'myalgo';
+      console.log('✅ MyAlgo Wallet connected successfully:', accounts[0].address);
       
       return { 
         accounts, 
@@ -92,6 +136,8 @@ export class WalletService {
         throw new Error('MyAlgo Connect popup was blocked or failed to load. Please allow popups and try again.');
       } else if (error.message.includes('User rejected')) {
         throw new Error('Connection was cancelled by user.');
+      } else if (error.message.includes('No accounts')) {
+        throw new Error('No accounts found in MyAlgo Wallet. Please create an account first.');
       } else {
         throw new Error(`Failed to connect MyAlgo Wallet: ${error.message}`);
       }
@@ -100,9 +146,11 @@ export class WalletService {
 
   static async disconnectWallet() {
     try {
-      if (this.peraWallet) {
+      if (this.connectedWallet === 'pera' && this.peraWallet) {
         await this.peraWallet.disconnect();
       }
+      
+      this.connectedWallet = null;
       console.log('🔌 Wallet disconnected');
     } catch (error) {
       console.error('❌ Error disconnecting wallet:', error);
@@ -112,9 +160,11 @@ export class WalletService {
   static async signTransaction(txn: any, walletType: 'pera' | 'myalgo') {
     try {
       if (walletType === 'pera' && this.peraWallet) {
-        return await this.peraWallet.signTransaction([txn]);
+        const signedTxn = await this.peraWallet.signTransaction([txn]);
+        return signedTxn[0];
       } else if (walletType === 'myalgo' && this.myAlgoConnect) {
-        return await this.myAlgoConnect.signTransaction(txn);
+        const signedTxn = await this.myAlgoConnect.signTransaction(txn);
+        return signedTxn.blob;
       }
       
       throw new Error(`${walletType} wallet not initialized or transaction signing not implemented`);
@@ -130,6 +180,10 @@ export class WalletService {
     return false;
   }
 
+  static getConnectedWallet(): 'pera' | 'myalgo' | 'demo' | null {
+    return this.connectedWallet;
+  }
+
   static getWalletStatus() {
     return {
       pera: {
@@ -141,5 +195,29 @@ export class WalletService {
         error: !this.myAlgoConnect ? 'SDK not installed' : null
       }
     };
+  }
+
+  // New method to check if wallet extension is installed
+  static async checkWalletExtensions() {
+    const status = {
+      peraExtension: false,
+      myalgoExtension: false
+    };
+
+    try {
+      // Check for Pera Wallet extension
+      if (typeof window !== 'undefined' && (window as any).algorand) {
+        status.peraExtension = true;
+      }
+      
+      // Check for MyAlgo extension (they don't have a browser extension, only web wallet)
+      // MyAlgo works through their web interface
+      status.myalgoExtension = true; // Always available as web wallet
+      
+    } catch (error) {
+      console.warn('Error checking wallet extensions:', error);
+    }
+
+    return status;
   }
 }

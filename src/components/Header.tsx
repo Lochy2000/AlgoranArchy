@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X, Zap, ChevronDown, Wallet, LogOut } from 'lucide-react';
+import { AlgorandService } from '../utils/algorand';
 
 interface HeaderProps {
   onConnectWallet: () => void;
   connectedAddress?: string;
+  onAccountClick?: () => void;
+  onDisconnectWallet?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onConnectWallet, connectedAddress }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  onConnectWallet, 
+  connectedAddress, 
+  onAccountClick,
+  onDisconnectWallet 
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -19,6 +28,28 @@ export const Header: React.FC<HeaderProps> = ({ onConnectWallet, connectedAddres
       element.scrollIntoView({ behavior: 'smooth' });
     }
     setIsMobileMenuOpen(false);
+  };
+
+  const handleAccountClick = () => {
+    if (onAccountClick) {
+      onAccountClick();
+    }
+    setIsAccountDropdownOpen(false);
+  };
+
+  const handleDisconnect = () => {
+    if (onDisconnectWallet) {
+      onDisconnectWallet();
+    }
+    setIsAccountDropdownOpen(false);
+  };
+
+  const openInExplorer = () => {
+    if (connectedAddress) {
+      const url = AlgorandService.getAccountExplorerUrl(connectedAddress);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+    setIsAccountDropdownOpen(false);
   };
 
   return (
@@ -60,8 +91,44 @@ export const Header: React.FC<HeaderProps> = ({ onConnectWallet, connectedAddres
           </button>
           
           {connectedAddress ? (
-            <div className="bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 rounded-lg text-black font-mono text-sm">
-              {connectedAddress.slice(0, 6)}...{connectedAddress.slice(-6)}
+            <div className="relative">
+              <button
+                onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
+                className="bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 rounded-lg text-black font-mono text-sm flex items-center hover:opacity-90 transition-all"
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                {connectedAddress.slice(0, 6)}...{connectedAddress.slice(-6)}
+                <ChevronDown className="w-4 h-4 ml-2" />
+              </button>
+              
+              {isAccountDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-cyan-400 rounded-lg shadow-lg z-50">
+                  <div className="py-1">
+                    <button
+                      onClick={handleAccountClick}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 flex items-center"
+                    >
+                      <Wallet className="w-4 h-4 mr-2" />
+                      View Account
+                    </button>
+                    <button
+                      onClick={openInExplorer}
+                      className="w-full text-left px-4 py-2 text-sm text-white hover:bg-gray-800 flex items-center"
+                    >
+                      <Zap className="w-4 h-4 mr-2" />
+                      View in Explorer
+                    </button>
+                    <hr className="border-gray-700 my-1" />
+                    <button
+                      onClick={handleDisconnect}
+                      className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800 flex items-center"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Disconnect
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <button 
@@ -110,7 +177,21 @@ export const Header: React.FC<HeaderProps> = ({ onConnectWallet, connectedAddres
             >
               NODES
             </button>
-            {!connectedAddress && (
+            
+            {connectedAddress ? (
+              <div className="space-y-2">
+                <div className="text-cyan-400 text-sm">
+                  Connected: {connectedAddress.slice(0, 6)}...{connectedAddress.slice(-6)}
+                </div>
+                <button 
+                  onClick={handleAccountClick}
+                  className="bg-gradient-to-r from-cyan-500 to-purple-600 px-6 py-2 rounded-lg hover:opacity-90 transition-all text-black font-bold w-fit flex items-center"
+                >
+                  <Wallet className="w-4 h-4 mr-2" />
+                  VIEW ACCOUNT
+                </button>
+              </div>
+            ) : (
               <button 
                 onClick={onConnectWallet}
                 className="bg-gradient-to-r from-cyan-500 to-purple-600 px-6 py-2 rounded-lg hover:opacity-90 transition-all text-black font-bold w-fit"
@@ -121,6 +202,14 @@ export const Header: React.FC<HeaderProps> = ({ onConnectWallet, connectedAddres
             )}
           </div>
         </div>
+      )}
+      
+      {/* Click outside to close dropdown */}
+      {isAccountDropdownOpen && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setIsAccountDropdownOpen(false)}
+        />
       )}
     </header>
   );
