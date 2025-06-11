@@ -1,6 +1,6 @@
 # 🤘 ALGORANARCHY - Punk Rock Algorand Explorer
 
-[![Deploy Status](https://img.shields.io/badge/deploy-ready-brightgreen)](https://github.com/yourusername/algoranarchy)
+[![Deploy Status](https://img.shields.io/badge/deploy-ready-brightgreen)](https://famous-selkie-fc4c64.netlify.app/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
@@ -10,14 +10,15 @@
 
 ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk rock aesthetic and cutting-edge functionality. Explore real-time Algorand data, connect wallets, trade tokens, and monitor network health - all with an interface that rocks as hard as the technology behind it.
 
-![image](https://github.com/user-attachments/assets/61166ee3-0f91-4642-9202-6465bdc38ac2)
+🌐 **Live Demo**: [https://famous-selkie-fc4c64.netlify.app/](https://famous-selkie-fc4c64.netlify.app/)
 
+![ALGORANARCHY Screenshot](https://github.com/user-attachments/assets/61166ee3-0f91-4642-9202-6465bdc38ac2)
 
 ## ✨ Features
 
 ### 🔗 **Blockchain Explorer**
 - **Real-time Data**: Live blocks, transactions, and network statistics
-- **Block Details**: Deep dive into block information with external explorer links
+- **Block Details**: Deep dive into block information with AlgoExplorer integration
 - **Network Health**: Monitor node distribution and consensus participation
 - **Supply Metrics**: Track total and online stake in real-time
 
@@ -28,8 +29,8 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
 - **Transaction Signing**: Full support for transaction creation and signing
 
 ### 📈 **Trading & DeFi**
-- **DEX Integration**: Connect to Tinyman and Pact for token swaps
-- **Real-time Prices**: Live price feeds from CoinGecko API
+- **DEX Integration**: Direct links to Tinyman and Pact for token swaps
+- **Real-time Prices**: Live price feeds from Moralis and CoinGecko APIs
 - **Quote System**: Get accurate swap quotes before trading
 - **Price Tracking**: Monitor token performance with 24h changes
 
@@ -38,6 +39,7 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
 - **Neon Colors**: Eye-catching cyan, pink, and purple color scheme
 - **Responsive Design**: Perfect on desktop, tablet, and mobile
 - **Dark Theme**: Easy on the eyes for long blockchain exploration sessions
+- **Animated Globe**: Real-time 3D visualization of global node distribution
 
 ### 🛠️ **Developer Tools**
 - **Debug Panel**: Real-time API monitoring and troubleshooting
@@ -73,6 +75,7 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
    Edit `.env` with your API keys:
    ```env
    VITE_ALGO_API_TOKEN=your_algorand_api_token
+   VITE_MORALIS_API_KEY=your_moralis_api_key
    VITE_COINGECKO_API_KEY=your_coingecko_api_key
    VITE_DEBUG_MODE=true
    ```
@@ -94,10 +97,15 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
    - Free tier available with generous limits
    - Used for blockchain data and transactions
 
-2. **CoinGecko API Key** (Optional but recommended)
+2. **Moralis API Key** (Primary price data)
+   - Get from [Moralis](https://moralis.io)
+   - Used for real-time ALGO price data
+   - Fallback to CoinGecko if not available
+
+3. **CoinGecko API Key** (Backup price data)
    - Get from [CoinGecko API](https://www.coingecko.com/en/api)
    - Free tier: 500 calls/month
-   - Used for real-time price data
+   - Used for token prices and market data
 
 ### Wallet SDKs (Optional)
 
@@ -111,9 +119,11 @@ See our [API Setup Guide](docs/API_SETUP.md) for detailed instructions.
 ## 📱 What's Working
 
 ✅ **Real-time blockchain data** - Live blocks, transactions, network stats  
+✅ **Working block explorer links** - Direct links to AlgoExplorer  
+✅ **Functional trading** - Direct integration with Tinyman and Pact DEX  
 ✅ **Wallet connections** - Demo mode + SDK integration ready  
-✅ **Price feeds** - Real-time token prices with fallback data  
-✅ **Trading interface** - Quote system with DEX integration  
+✅ **Price feeds** - Real-time token prices with Moralis/CoinGecko  
+✅ **Animated globe** - 3D visualization of global node distribution  
 ✅ **Responsive UI** - Mobile-first punk rock design  
 ✅ **Debug tools** - Comprehensive development panel  
 ✅ **Error handling** - Graceful fallbacks and user feedback  
@@ -125,23 +135,39 @@ See our [API Setup Guide](docs/API_SETUP.md) for detailed instructions.
 - **Blockchain**: Algorand SDK (algosdk)
 - **State Management**: Zustand
 - **Icons**: Lucide React
-- **APIs**: Algorand Node, CoinGecko, Tinyman, Pact
-- **Deployment**: Vercel, Netlify, Docker ready
+- **APIs**: Algorand Node, Moralis, CoinGecko, Tinyman, Pact
+- **Deployment**: Netlify (live at [famous-selkie-fc4c64.netlify.app](https://famous-selkie-fc4c64.netlify.app/))
+
+## 🌐 Deployment
+
+The application is deployed on Netlify with the following environment variables configured:
+
+```env
+VITE_ALGO_API_TOKEN=your_algorand_api_token
+VITE_MORALIS_API_KEY=your_moralis_api_key
+VITE_COINGECKO_API_KEY=your_coingecko_api_key
+VITE_DEBUG_MODE=false
+VITE_ENVIRONMENT=production
+```
+
+For deployment instructions, see our [Deployment Guide](docs/DEPLOYMENT.md).
 
 ## 📖 Documentation
 
 - [API Setup Guide](docs/API_SETUP.md) - Configure all necessary APIs
 - [Deployment Guide](docs/DEPLOYMENT.md) - Deploy to various platforms
 - [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Changelog](CHANGELOG.md) - Version history and updates
 
 ## 🎯 Roadmap
 
 ### Phase 1: Core Features ✅
-- [x] Blockchain explorer
-- [x] Wallet integration
-- [x] Basic trading interface
+- [x] Blockchain explorer with working links
+- [x] Functional trading integration
+- [x] Animated global node visualization
 - [x] Responsive design
+- [x] Real-time price data
 
 ### Phase 2: Advanced Features 🚧
 - [ ] Portfolio tracking
@@ -180,8 +206,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - 🐛 **Bug Reports**: [Open an issue](https://github.com/yourusername/algoranarchy/issues)
 - 💡 **Feature Requests**: [Start a discussion](https://github.com/yourusername/algoranarchy/discussions)
-- 📧 **Email**: hello@algoranarchy.io
-- 🐦 **Twitter**: [@algoranarchy](https://twitter.com/algoranarchy)
+- 📧 **Email**: lochlann_oht@hotmail.com
+- 🌐 **Live Demo**: [https://famous-selkie-fc4c64.netlify.app/](https://famous-selkie-fc4c64.netlify.app/)
 
 ## ⭐ Show Your Support
 

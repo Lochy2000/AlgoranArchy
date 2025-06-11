@@ -69,14 +69,21 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
       
       // Open Tinyman with the trading pair
       const tinymanUrl = `https://app.tinyman.org/#/swap?asset_in=${inputAsset}&asset_out=${outputAsset}`;
-      window.open(tinymanUrl, '_blank');
       
-      // Show success message
-      alert(`Redirecting to Tinyman for ${inputSymbol} → ${outputSymbol} swap. Complete the transaction there.`);
+      // Use window.open with proper parameters for better compatibility
+      const newWindow = window.open(tinymanUrl, '_blank', 'noopener,noreferrer');
       
-      onClose();
+      if (newWindow) {
+        // Show success message
+        alert(`Opening Tinyman for ${inputSymbol} → ${outputSymbol} swap. Complete the transaction there.`);
+        onClose();
+      } else {
+        // Fallback if popup was blocked
+        setError('Popup blocked. Please allow popups or manually visit: ' + tinymanUrl);
+      }
+      
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Swap failed');
+      setError(error instanceof Error ? error.message : 'Failed to open DEX');
     } finally {
       setIsLoading(false);
     }
@@ -92,12 +99,24 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
 
   const openTinyman = () => {
     const url = `https://app.tinyman.org/#/swap?asset_in=${inputAsset}&asset_out=${outputAsset}`;
-    window.open(url, '_blank');
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    
+    if (!newWindow) {
+      setError('Popup blocked. Please allow popups or manually visit: ' + url);
+    } else {
+      onClose();
+    }
   };
 
   const openPact = () => {
     const url = `https://app.pact.fi/add-liquidity/${inputAsset}/${outputAsset}`;
-    window.open(url, '_blank');
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    
+    if (!newWindow) {
+      setError('Popup blocked. Please allow popups or manually visit: ' + url);
+    } else {
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -202,8 +221,8 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
 
           {/* Error Display */}
           {error && (
-            <div className="bg-red-900/50 border border-red-500 rounded-lg p-3 flex items-center">
-              <AlertTriangle className="w-4 h-4 text-red-400 mr-2" />
+            <div className="bg-red-900/50 border border-red-500 rounded-lg p-3 flex items-start">
+              <AlertTriangle className="w-4 h-4 text-red-400 mr-2 mt-0.5 flex-shrink-0" />
               <span className="text-red-200 text-sm">{error}</span>
             </div>
           )}

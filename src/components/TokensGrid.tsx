@@ -89,12 +89,24 @@ export const TokensGrid: React.FC = () => {
   };
 
   const handleTradeClick = (token: any) => {
-    alert(`Trading for ${token.symbol} is not yet implemented. This would typically integrate with a DEX like Tinyman or Pact.`);
+    // Open Tinyman directly with the token pair
+    const url = `https://app.tinyman.org/#/swap?asset_in=0&asset_out=${token.assetId}`;
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    
+    if (!newWindow) {
+      alert(`Popup blocked. Please allow popups or manually visit: ${url}`);
+    }
   };
 
   const handleTokenClick = (assetId: number) => {
-    const url = `https://algoexplorer.io/asset/${assetId}`;
-    window.open(url, '_blank');
+    if (assetId) {
+      const url = `https://algoexplorer.xyz/asset/${assetId}`;
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      if (!newWindow) {
+        alert(`Popup blocked. Please allow popups or manually visit: ${url}`);
+      }
+    }
   };
 
   const tokens = getTokenData();

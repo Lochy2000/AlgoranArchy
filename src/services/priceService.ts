@@ -6,6 +6,14 @@ interface PriceData {
   marketCap?: number;
 }
 
+interface MoralisResponse {
+  usdPrice: number;
+  usdPriceFormatted: string;
+  '24hrPercentChange': string;
+  exchangeAddress?: string;
+  exchangeName?: string;
+}
+
 interface CoinGeckoResponse {
   [key: string]: {
     usd: number;
@@ -16,8 +24,9 @@ interface CoinGeckoResponse {
 }
 
 export class PriceService {
-  private static readonly COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
-  private static readonly BACKUP_API_URL = 'https://api.coinpaprika.com/v1';
+  private static readonly MORALIS_API_URL = import.meta.env.VITE_MORALIS_API_URL || 'https://deep-index.moralis.io/api/v2.2';
+  private static readonly MORALIS_API_KEY = import.meta.env.VITE_MORALIS_API_KEY;
+  private static readonly COINGECKO_BASE_URL = import.meta.env.VITE_COINGECKO_API_URL || 'https://api.coingecko.com/api/v3';
   
   // Algorand asset ID to CoinGecko ID mapping
   private static readonly ASSET_MAPPING = {
@@ -28,12 +37,13 @@ export class PriceService {
     '0': 'algorand' // ALGO
   };
 
-  private static async makeRequest(url: string, timeout: number = 5000): Promise<any> {
+  private static async makeRequest(url: string, headers: Record<string, string> = {}, timeout: number = 5000): Promise<any> {
     try {
       const response = await fetch(url, {
         signal: AbortSignal.timeout(timeout),
         headers: {
           'Accept': 'application/json',
+          ...headers
         }
       });
       
@@ -49,7 +59,7 @@ export class PriceService {
   }
 
   static async getAlgorandPrice(): Promise<PriceData> {
-    // Try multiple approaches to get price data
+    // Fallback data
     const fallbackData = {
       symbol: 'ALGO',
       price: 0.18,
@@ -59,8 +69,34 @@ export class PriceService {
     };
 
     try {
-      // First try: CoinGecko API
+      // First try: Moralis API (if available)
+      if (this.MORALIS_API_KEY) {
+        try {
+          console.log('🔄 Trying Moralis API for ALGO price...');
+          const data = await this.makeRequest(
+            `${this.MORALIS_API_URL}/erc20/price?chain=algo&address=null`,
+            {
+              'X-API-Key': this.MORALIS_API_KEY
+            }
+          );
+          
+          if (data && data.usdPrice) {
+            return {
+              symbol: 'ALGO',
+              price: parseFloat(data.usdPrice),
+              change24h: parseFloat(data['24hrPercentChange'] || '0'),
+              volume24h: fallbackData.volume24h, // Moralis might not provide volume
+              marketCap: fallbackData.marketCap
+            };
+          }
+        } catch (moralisError) {
+          console.warn('Moralis API failed, trying CoinGecko...');
+        }
+      }
+
+      // Second try: CoinGecko API
       try {
+        console.log('🔄 Trying CoinGecko API for ALGO price...');
         const data = await this.makeRequest(
           `${this.COINGECKO_BASE_URL}/simple/price?ids=algorand&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`
         );
@@ -76,26 +112,7 @@ export class PriceService {
           };
         }
       } catch (coinGeckoError) {
-        console.warn('CoinGecko API failed, trying backup...');
-      }
-
-      // Second try: Alternative API (CoinPaprika)
-      try {
-        const data = await this.makeRequest(
-          `${this.BACKUP_API_URL}/tickers/algo-algorand`
-        );
-        
-        if (data) {
-          return {
-            symbol: 'ALGO',
-            price: data.quotes?.USD?.price || fallbackData.price,
-            change24h: data.quotes?.USD?.percent_change_24h || fallbackData.change24h,
-            volume24h: data.quotes?.USD?.volume_24h || fallbackData.volume24h,
-            marketCap: data.quotes?.USD?.market_cap || fallbackData.marketCap
-          };
-        }
-      } catch (backupError) {
-        console.warn('Backup API also failed');
+        console.warn('CoinGecko API also failed');
       }
 
       // If all APIs fail, return mock data with a warning
@@ -209,20 +226,28 @@ export class PriceService {
   // Method to test API connectivity
   static async testConnectivity(): Promise<{ success: boolean; message: string }> {
     try {
-      // Test CoinGecko API
-      await this.makeRequest(`${this.COINGECKO_BASE_URL}/ping`, 3000);
-      return { success: true, message: 'CoinGecko API is accessible' };
-    } catch (coinGeckoError) {
-      try {
-        // Test backup API
-        await this.makeRequest(`${this.BACKUP_API_URL}/global`, 3000);
-        return { success: true, message: 'Backup API is accessible' };
-      } catch (backupError) {
-        return { 
-          success: false, 
-          message: 'Both price APIs are inaccessible. Using mock data.' 
-        };
+      // Test Moralis API if available
+      if (this.MORALIS_API_KEY) {
+        try {
+          await this.makeRequest(
+            `${this.MORALIS_API_URL}/erc20/price?chain=algo&address=null`,
+            { 'X-API-Key': this.MORALIS_API_KEY },
+            3000
+          );
+          return { success: true, message: 'Moralis API is accessible' };
+        } catch (moralisError) {
+          console.warn('Moralis API test failed, trying CoinGecko...');
+        }
       }
+      
+      // Test CoinGecko API
+      await this.makeRequest(`${this.COINGECKO_BASE_URL}/ping`, {}, 3000);
+      return { success: true, message: 'CoinGecko API is accessible' };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: 'Both price APIs are inaccessible. Using mock data.' 
+      };
     }
   }
 }

@@ -367,24 +367,24 @@ export class AlgorandService {
     return `${seconds} sec${seconds > 1 ? 's' : ''} ago`;
   }
 
-  // Fixed method to get block explorer URL - using AlgoExplorer
+  // Fixed method to get block explorer URL - using correct AlgoExplorer format
   static getBlockExplorerUrl(round: number): string {
-    return `https://algoexplorer.io/block/${round}`;
+    return `https://algoexplorer.xyz/block/${round}`;
   }
 
   // Fixed method to get transaction explorer URL
   static getTransactionExplorerUrl(txId: string): string {
-    return `https://algoexplorer.io/tx/${txId}`;
+    return `https://algoexplorer.xyz/tx/${txId}`;
   }
 
   // Fixed method to get account explorer URL
   static getAccountExplorerUrl(address: string): string {
-    return `https://algoexplorer.io/address/${address}`;
+    return `https://algoexplorer.xyz/address/${address}`;
   }
 
   // New method to get asset explorer URL
   static getAssetExplorerUrl(assetId: number): string {
-    return `https://algoexplorer.io/asset/${assetId}`;
+    return `https://algoexplorer.xyz/asset/${assetId}`;
   }
 }
 
