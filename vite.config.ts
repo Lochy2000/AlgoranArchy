@@ -15,4 +15,17 @@ export default defineConfig({
       buffer: 'buffer',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          algorand: ['algosdk'],
+          wallets: ['@perawallet/connect', '@randlabs/myalgo-connect'],
+          ui: ['lucide-react']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 });

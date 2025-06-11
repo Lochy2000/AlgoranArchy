@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Wallet, ExternalLink, AlertCircle, CheckCircle, Download, Globe } from 'lucide-react';
+import { X, Wallet, ExternalLink, AlertCircle, CheckCircle, Download, Globe, Smartphone } from 'lucide-react';
 import { WalletService } from '../services/walletService';
 
 interface WalletModalProps {
@@ -23,9 +23,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onCon
   useEffect(() => {
     const checkWalletAvailability = async () => {
       if (isOpen) {
+        console.log('🔍 Checking wallet availability...');
         await WalletService.initializeWallets();
         const status = WalletService.getWalletStatus();
         const extensions = await WalletService.checkWalletExtensions();
+        
+        console.log('Wallet status:', status);
+        console.log('Extension status:', extensions);
+        
         setWalletStatus(status);
         setExtensionStatus(extensions);
       }
@@ -43,21 +48,25 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onCon
     setConnectingWallet(walletType);
     
     try {
+      console.log(`🔗 Attempting to connect ${walletType} wallet...`);
+      
       if (walletType === 'pera' && !walletStatus.pera.available) {
-        alert('Pera Wallet SDK not available. Please install the Pera Wallet app or browser extension.');
-        return;
+        throw new Error('Pera Wallet SDK not available. Please install the Pera Wallet app or browser extension.');
       }
       
       if (walletType === 'myalgo' && !walletStatus.myalgo.available) {
-        alert('MyAlgo Connect SDK not available. Please install @randlabs/myalgo-connect package.');
-        return;
+        throw new Error('MyAlgo Connect SDK not available. Please install @randlabs/myalgo-connect package.');
       }
 
       await onConnect(walletType);
-      onClose();
+      
+      // Only close modal on successful connection
+      console.log(`✅ ${walletType} wallet connected successfully`);
+      
     } catch (error) {
-      console.error(`Failed to connect ${walletType} wallet:`, error);
+      console.error(`❌ Failed to connect ${walletType} wallet:`, error);
       // Error handling is done in the parent component
+      // Don't close modal on error so user can try again
     } finally {
       setIsConnecting(false);
       setConnectingWallet(null);
@@ -96,11 +105,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onCon
 
         <div className="space-y-4">
           {/* Pera Wallet */}
-          <div className="border border-gray-700 rounded-lg p-4">
+          <div className="border border-gray-700 rounded-lg p-4 hover:border-blue-500 transition-all">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-3">
-                  <Wallet size={20} />
+                  <Smartphone size={20} />
                 </div>
                 <div>
                   <div className="font-semibold flex items-center">
@@ -138,20 +147,18 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onCon
                 )}
               </button>
               
-              {!walletStatus.pera.available && (
-                <button
-                  onClick={openPeraWalletDownload}
-                  className="w-full p-2 border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-900/30 transition-all flex items-center justify-center text-sm"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Pera Wallet
-                </button>
-              )}
+              <button
+                onClick={openPeraWalletDownload}
+                className="w-full p-2 border border-blue-500 text-blue-400 rounded-lg hover:bg-blue-900/30 transition-all flex items-center justify-center text-sm"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Pera Wallet
+              </button>
             </div>
           </div>
 
           {/* MyAlgo Connect */}
-          <div className="border border-gray-700 rounded-lg p-4">
+          <div className="border border-gray-700 rounded-lg p-4 hover:border-green-500 transition-all">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mr-3">
@@ -204,13 +211,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onCon
           </div>
 
           {/* Demo Account */}
-          <div className="border border-pink-500 rounded-lg p-4">
+          <div className="border border-pink-500 rounded-lg p-4 hover:border-pink-400 transition-all">
             <button
               onClick={() => handleConnect('demo')}
               disabled={isConnecting}
               className={`w-full p-4 rounded-lg transition-all flex items-center justify-between ${
                 connectingWallet === 'demo' ? 'animate-pulse' : ''
-              } bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white`}
+              } bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white disabled:opacity-50`}
             >
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center mr-3">
@@ -260,6 +267,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onCon
               <div>Pera SDK: {walletStatus.pera.available ? '✅' : '❌'}</div>
               <div>MyAlgo SDK: {walletStatus.myalgo.available ? '✅' : '❌'}</div>
               <div>Pera Extension: {extensionStatus.peraExtension ? '✅' : '❌'}</div>
+              <div>Connecting: {connectingWallet || 'None'}</div>
             </div>
           </div>
         )}
