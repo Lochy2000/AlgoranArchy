@@ -39,13 +39,20 @@ export class PriceService {
 
   private static async makeRequest(url: string, headers: Record<string, string> = {}, timeout: number = 5000): Promise<any> {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeout);
+      
       const response = await fetch(url, {
-        signal: AbortSignal.timeout(timeout),
+        signal: controller.signal,
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
           ...headers
-        }
+        },
+        mode: 'cors'
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);

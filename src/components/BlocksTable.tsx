@@ -18,10 +18,27 @@ export const BlocksTable: React.FC = () => {
     fetchLatestBlocks();
   };
 
-  const handleBlockClick = (round: number) => {
+  // Fix popup blocking by using direct click handler
+  const handleBlockClick = (event: React.MouseEvent, round: number) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     if (round) {
       const url = AlgorandService.getBlockExplorerUrl(round);
-      window.open(url, '_blank');
+      
+      // Open immediately in the click handler
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        // Fallback: create a temporary link and click it
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     }
   };
 
@@ -105,7 +122,7 @@ export const BlocksTable: React.FC = () => {
                 <tr 
                   key={block.round || `block-${index}`} 
                   className="hover:bg-gray-900 transition-all cursor-pointer"
-                  onClick={() => handleBlockClick(block.round)}
+                  onClick={(e) => handleBlockClick(e, block.round)}
                 >
                   <td className="px-6 py-4 text-cyan-400 font-mono">
                     {block.round ? block.round.toLocaleString() : 'N/A'}
@@ -125,10 +142,7 @@ export const BlocksTable: React.FC = () => {
                   <td className="px-6 py-4">
                     <button 
                       className="text-pink-400 hover:text-pink-300 transition-all"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleBlockClick(block.round);
-                      }}
+                      onClick={(e) => handleBlockClick(e, block.round)}
                     >
                       <ExternalLink className="w-4 h-4" />
                     </button>

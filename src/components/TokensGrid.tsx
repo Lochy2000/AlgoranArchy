@@ -88,23 +88,48 @@ export const TokensGrid: React.FC = () => {
     });
   };
 
-  const handleTradeClick = (token: any) => {
-    // Open Tinyman directly with the token pair
+  // Fix popup blocking by using direct click handler
+  const handleTradeClick = (event: React.MouseEvent, token: any) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Create the URL
     const url = `https://app.tinyman.org/#/swap?asset_in=0&asset_out=${token.assetId}`;
+    
+    // Open immediately in the click handler to avoid popup blocking
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
     
-    if (!newWindow) {
-      alert(`Popup blocked. Please allow popups or manually visit: ${url}`);
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+      // Fallback: create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
-  const handleTokenClick = (assetId: number) => {
+  const handleTokenClick = (event: React.MouseEvent, assetId: number) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
     if (assetId) {
       const url = `https://algoexplorer.xyz/asset/${assetId}`;
+      
+      // Open immediately in the click handler
       const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
       
-      if (!newWindow) {
-        alert(`Popup blocked. Please allow popups or manually visit: ${url}`);
+      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        // Fallback: create a temporary link and click it
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     }
   };
@@ -143,7 +168,7 @@ export const TokensGrid: React.FC = () => {
             <div 
               key={index}
               className="bg-black/80 border border-pink-500 p-6 rounded-xl transition-all hover:transform hover:-translate-y-2 hover:shadow-lg hover:shadow-pink-500/30 cursor-pointer relative"
-              onClick={() => handleTokenClick(token.assetId)}
+              onClick={(e) => handleTokenClick(e, token.assetId)}
             >
               {/* Real/Mock Data Indicator */}
               <div className="absolute top-2 right-2">
@@ -179,10 +204,7 @@ export const TokensGrid: React.FC = () => {
               
               <button 
                 className="w-full py-2 border border-pink-500 text-pink-500 rounded-lg hover:bg-pink-900 hover:bg-opacity-30 transition-all flex items-center justify-center"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleTradeClick(token);
-                }}
+                onClick={(e) => handleTradeClick(e, token)}
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 TRADE
@@ -201,7 +223,7 @@ export const TokensGrid: React.FC = () => {
               <div 
                 key={asset.index || index}
                 className="bg-gray-900 border border-gray-700 p-4 rounded-lg hover:border-cyan-400 transition-all cursor-pointer"
-                onClick={() => handleTokenClick(asset.index)}
+                onClick={(e) => handleTokenClick(e, asset.index)}
               >
                 <div className="font-mono text-cyan-400">#{asset.index}</div>
                 <div className="font-bold text-white">{asset.params.name || 'Unnamed Asset'}</div>

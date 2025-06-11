@@ -13,15 +13,25 @@ const debugLog = (message: string, data?: any) => {
   }
 };
 
-// Test API connectivity
+// Test API connectivity with proper headers
 const testAPIConnectivity = async () => {
   debugLog('Testing API connectivity...');
   
   try {
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    };
+    
+    // Add API token header if available
+    if (API_TOKEN) {
+      headers['X-Algo-API-Token'] = API_TOKEN;
+    }
+    
     const response = await fetch(`${MAINNET_NODE}/health`, {
-      headers: API_TOKEN ? {
-        'X-Algo-API-Token': API_TOKEN,
-      } : {},
+      method: 'GET',
+      headers,
+      mode: 'cors'
     });
     
     debugLog('Health check response status:', response.status);
@@ -46,7 +56,11 @@ const createAlgodClient = () => {
   debugLog('Creating algod client with token:', API_TOKEN ? 'Token present' : 'No token');
   debugLog('Using node URL:', MAINNET_NODE);
   
-  const headers = API_TOKEN ? { 'X-Algo-API-Token': API_TOKEN } : {};
+  // Create headers object
+  const headers: Record<string, string> = {};
+  if (API_TOKEN) {
+    headers['X-Algo-API-Token'] = API_TOKEN;
+  }
   
   return new algosdk.Algodv2(
     headers,
@@ -59,7 +73,11 @@ const createIndexerClient = () => {
   debugLog('Creating indexer client with token:', API_TOKEN ? 'Token present' : 'No token');
   debugLog('Using indexer URL:', MAINNET_INDEXER);
   
-  const headers = API_TOKEN ? { 'X-Algo-API-Token': API_TOKEN } : {};
+  // Create headers object
+  const headers: Record<string, string> = {};
+  if (API_TOKEN) {
+    headers['X-Algo-API-Token'] = API_TOKEN;
+  }
   
   return new algosdk.Indexer(
     headers,

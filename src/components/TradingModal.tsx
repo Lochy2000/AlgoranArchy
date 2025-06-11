@@ -57,38 +57,6 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
     }
   };
 
-  const handleSwap = async () => {
-    if (!quote) return;
-
-    try {
-      setIsLoading(true);
-      
-      // Get the appropriate DEX URL
-      const inputSymbol = assets.find(a => a.id === inputAsset)?.symbol || 'ALGO';
-      const outputSymbol = assets.find(a => a.id === outputAsset)?.symbol || 'USDC';
-      
-      // Open Tinyman with the trading pair
-      const tinymanUrl = `https://app.tinyman.org/#/swap?asset_in=${inputAsset}&asset_out=${outputAsset}`;
-      
-      // Use window.open with proper parameters for better compatibility
-      const newWindow = window.open(tinymanUrl, '_blank', 'noopener,noreferrer');
-      
-      if (newWindow) {
-        // Show success message
-        alert(`Opening Tinyman for ${inputSymbol} → ${outputSymbol} swap. Complete the transaction there.`);
-        onClose();
-      } else {
-        // Fallback if popup was blocked
-        setError('Popup blocked. Please allow popups or manually visit: ' + tinymanUrl);
-      }
-      
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to open DEX');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const swapAssets = () => {
     setInputAsset(outputAsset);
     setOutputAsset(inputAsset);
@@ -97,23 +65,44 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
     setQuote(null);
   };
 
-  const openTinyman = () => {
+  // Fix popup blocking by using direct click handlers
+  const openTinyman = (event: React.MouseEvent) => {
+    event.preventDefault();
     const url = `https://app.tinyman.org/#/swap?asset_in=${inputAsset}&asset_out=${outputAsset}`;
+    
+    // Open immediately in the click handler
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
     
-    if (!newWindow) {
-      setError('Popup blocked. Please allow popups or manually visit: ' + url);
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+      // Fallback: create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } else {
       onClose();
     }
   };
 
-  const openPact = () => {
+  const openPact = (event: React.MouseEvent) => {
+    event.preventDefault();
     const url = `https://app.pact.fi/add-liquidity/${inputAsset}/${outputAsset}`;
+    
+    // Open immediately in the click handler
     const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
     
-    if (!newWindow) {
-      setError('Popup blocked. Please allow popups or manually visit: ' + url);
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+      // Fallback: create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } else {
       onClose();
     }
@@ -249,17 +238,6 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
               </button>
             </div>
           </div>
-
-          {/* Swap Button */}
-          {quote && (
-            <button
-              onClick={handleSwap}
-              disabled={isLoading}
-              className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-600 text-white py-3 rounded-lg transition-all"
-            >
-              {isLoading ? 'Opening DEX...' : 'Trade on DEX'}
-            </button>
-          )}
 
           {/* Disclaimer */}
           <div className="text-xs text-gray-400 text-center">
