@@ -28,7 +28,7 @@ export class PriceService {
   private static readonly MORALIS_API_KEY = import.meta.env.VITE_MORALIS_API_KEY;
   private static readonly COINGECKO_BASE_URL = import.meta.env.VITE_COINGECKO_API_URL || 'https://api.coingecko.com/api/v3';
   
-  // Algorand asset ID to CoinGecko ID mapping
+  // Algorand asset ID to CoinGecko ID mapping (for fallback)
   private static readonly ASSET_MAPPING = {
     '31566704': 'usd-coin', // USDC
     '312769': 'tether', // USDT
@@ -88,6 +88,7 @@ export class PriceService {
           );
           
           if (data && data.usdPrice) {
+            console.log('✅ Moralis API success:', data);
             return {
               symbol: 'ALGO',
               price: parseFloat(data.usdPrice),
@@ -97,11 +98,13 @@ export class PriceService {
             };
           }
         } catch (moralisError) {
-          console.warn('Moralis API failed, trying CoinGecko...');
+          console.warn('Moralis API failed, trying CoinGecko...', moralisError);
         }
+      } else {
+        console.warn('Moralis API key not available, trying CoinGecko...');
       }
 
-      // Second try: CoinGecko API
+      // Second try: CoinGecko API (fallback)
       try {
         console.log('🔄 Trying CoinGecko API for ALGO price...');
         const data = await this.makeRequest(
@@ -110,6 +113,7 @@ export class PriceService {
         
         if (data.algorand) {
           const algoData = data.algorand;
+          console.log('✅ CoinGecko API success:', algoData);
           return {
             symbol: 'ALGO',
             price: algoData.usd,
@@ -119,7 +123,7 @@ export class PriceService {
           };
         }
       } catch (coinGeckoError) {
-        console.warn('CoinGecko API also failed');
+        console.warn('CoinGecko API also failed', coinGeckoError);
       }
 
       // If all APIs fail, return mock data with a warning
@@ -134,6 +138,9 @@ export class PriceService {
 
   static async getTokenPrices(assetIds: string[]): Promise<Record<string, PriceData>> {
     try {
+      // For Moralis, we might need to handle each token separately
+      // For now, fall back to CoinGecko for token prices
+      
       // Map asset IDs to CoinGecko IDs
       const coinGeckoIds = assetIds
         .map(id => this.ASSET_MAPPING[id])
