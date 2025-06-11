@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ArrowDownUp, AlertTriangle } from 'lucide-react';
+import { X, ArrowDownUp, AlertTriangle, ExternalLink } from 'lucide-react';
 import { DexService } from '../services/dexService';
 
 interface TradingModalProps {
@@ -62,11 +62,19 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
 
     try {
       setIsLoading(true);
-      // This would require wallet integration
-      alert('Swap functionality requires wallet integration. Redirecting to Tinyman...');
       
-      const dexUrl = DexService.getDexUrl(inputAsset, outputAsset, 'tinyman');
-      window.open(dexUrl, '_blank');
+      // Get the appropriate DEX URL
+      const inputSymbol = assets.find(a => a.id === inputAsset)?.symbol || 'ALGO';
+      const outputSymbol = assets.find(a => a.id === outputAsset)?.symbol || 'USDC';
+      
+      // Open Tinyman with the trading pair
+      const tinymanUrl = `https://app.tinyman.org/#/swap?asset_in=${inputAsset}&asset_out=${outputAsset}`;
+      window.open(tinymanUrl, '_blank');
+      
+      // Show success message
+      alert(`Redirecting to Tinyman for ${inputSymbol} → ${outputSymbol} swap. Complete the transaction there.`);
+      
+      onClose();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Swap failed');
     } finally {
@@ -80,6 +88,16 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
     setInputAmount(outputAmount);
     setOutputAmount('');
     setQuote(null);
+  };
+
+  const openTinyman = () => {
+    const url = `https://app.tinyman.org/#/swap?asset_in=${inputAsset}&asset_out=${outputAsset}`;
+    window.open(url, '_blank');
+  };
+
+  const openPact = () => {
+    const url = `https://app.pact.fi/add-liquidity/${inputAsset}/${outputAsset}`;
+    window.open(url, '_blank');
   };
 
   if (!isOpen) return null;
@@ -190,6 +208,29 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
             </div>
           )}
 
+          {/* DEX Options */}
+          <div className="space-y-3">
+            <div className="text-sm text-gray-400 text-center">Choose your preferred DEX:</div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={openTinyman}
+                className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-all flex items-center justify-center"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Tinyman
+              </button>
+              
+              <button
+                onClick={openPact}
+                className="bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg transition-all flex items-center justify-center"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Pact
+              </button>
+            </div>
+          </div>
+
           {/* Swap Button */}
           {quote && (
             <button
@@ -197,13 +238,13 @@ export const TradingModal: React.FC<TradingModalProps> = ({ isOpen, onClose, ini
               disabled={isLoading}
               className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-600 text-white py-3 rounded-lg transition-all"
             >
-              {isLoading ? 'Swapping...' : 'Swap Tokens'}
+              {isLoading ? 'Opening DEX...' : 'Trade on DEX'}
             </button>
           )}
 
           {/* Disclaimer */}
           <div className="text-xs text-gray-400 text-center">
-            Trading is currently in demo mode. Actual swaps require wallet connection and will redirect to external DEX.
+            Trading redirects to external DEX platforms. Always verify transaction details before confirming.
           </div>
         </div>
       </div>
