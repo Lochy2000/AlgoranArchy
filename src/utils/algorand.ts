@@ -13,7 +13,7 @@ const debugLog = (message: string, data?: any) => {
   }
 };
 
-// Test API connectivity with proper headers
+// Test API connectivity with proper headers and error handling
 const testAPIConnectivity = async () => {
   debugLog('Testing API connectivity...');
   
@@ -26,13 +26,22 @@ const testAPIConnectivity = async () => {
     // Add API token header if available
     if (API_TOKEN) {
       headers['X-Algo-API-Token'] = API_TOKEN;
+      debugLog('Using API token for authentication');
+    } else {
+      debugLog('⚠️ No API token provided - requests may fail');
     }
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     
     const response = await fetch(`${MAINNET_NODE}/health`, {
       method: 'GET',
       headers,
-      mode: 'cors'
+      mode: 'cors',
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
     
     debugLog('Health check response status:', response.status);
     debugLog('Health check response headers:', Object.fromEntries(response.headers.entries()));
@@ -40,13 +49,16 @@ const testAPIConnectivity = async () => {
     if (response.ok) {
       const data = await response.text();
       debugLog('Health check response data:', data);
-      return { success: true, data };
+      return { success: true, data, status: response.status };
     } else {
       debugLog('Health check failed:', response.statusText);
-      return { success: false, error: response.statusText };
+      return { success: false, error: `HTTP ${response.status}: ${response.statusText}`, status: response.status };
     }
   } catch (error) {
     debugLog('Health check error:', error);
+    if (error.name === 'AbortError') {
+      return { success: false, error: 'Request timeout' };
+    }
     return { success: false, error: error.message };
   }
 };
@@ -98,6 +110,13 @@ export class AlgorandService {
       const connectivityTest = await testAPIConnectivity();
       if (!connectivityTest.success) {
         debugLog('Connectivity test failed, using mock data');
+        
+        // If it's a 403 error, it means the endpoint exists but we need proper auth
+        if (connectivityTest.status === 403) {
+          debugLog('❌ 403 Forbidden - API token may be invalid or missing');
+          throw new Error('API authentication failed. Please check your VITE_ALGO_API_TOKEN.');
+        }
+        
         throw new Error(`API connectivity failed: ${connectivityTest.error}`);
       }
       
@@ -387,22 +406,22 @@ export class AlgorandService {
 
   // Fixed method to get block explorer URL - using correct AlgoExplorer format
   static getBlockExplorerUrl(round: number): string {
-    return `https://algoexplorer.xyz/block/${round}`;
+    return `https://algoexplorer.io/block/${round}`;
   }
 
   // Fixed method to get transaction explorer URL
   static getTransactionExplorerUrl(txId: string): string {
-    return `https://algoexplorer.xyz/tx/${txId}`;
+    return `https://algoexplorer.io/tx/${txId}`;
   }
 
   // Fixed method to get account explorer URL
   static getAccountExplorerUrl(address: string): string {
-    return `https://algoexplorer.xyz/address/${address}`;
+    return `https://algoexplorer.io/address/${address}`;
   }
 
   // New method to get asset explorer URL
   static getAssetExplorerUrl(assetId: number): string {
-    return `https://algoexplorer.xyz/asset/${assetId}`;
+    return `https://algoexplorer.io/asset/${assetId}`;
   }
 }
 

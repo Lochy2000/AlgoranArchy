@@ -6,14 +6,6 @@ interface PriceData {
   marketCap?: number;
 }
 
-interface MoralisResponse {
-  usdPrice: number;
-  usdPriceFormatted: string;
-  '24hrPercentChange': string;
-  exchangeAddress?: string;
-  exchangeName?: string;
-}
-
 interface CoinGeckoResponse {
   [key: string]: {
     usd: number;
@@ -23,10 +15,21 @@ interface CoinGeckoResponse {
   };
 }
 
+interface CoinPaprikaResponse {
+  quotes: {
+    USD: {
+      price: number;
+      percent_change_24h: number;
+      volume_24h: number;
+      market_cap: number;
+    };
+  };
+}
+
 export class PriceService {
-  private static readonly MORALIS_API_URL = import.meta.env.VITE_MORALIS_API_URL || 'https://deep-index.moralis.io/api/v2.2';
-  private static readonly MORALIS_API_KEY = import.meta.env.VITE_MORALIS_API_KEY;
   private static readonly COINGECKO_BASE_URL = import.meta.env.VITE_COINGECKO_API_URL || 'https://api.coingecko.com/api/v3';
+  private static readonly COINPAPRIKA_BASE_URL = import.meta.env.VITE_COINPAPRIKA_API_URL || 'https://api.coinpaprika.com/v1';
+  private static readonly CRYPTOCOMPARE_BASE_URL = import.meta.env.VITE_CRYPTOCOMPARE_API_URL || 'https://min-api.cryptocompare.com/data';
   
   // Algorand asset ID to CoinGecko ID mapping (for fallback)
   private static readonly ASSET_MAPPING = {
@@ -37,7 +40,7 @@ export class PriceService {
     '0': 'algorand' // ALGO
   };
 
-  private static async makeRequest(url: string, headers: Record<string, string> = {}, timeout: number = 5000): Promise<any> {
+  private static async makeRequest(url: string, headers: Record<string, string> = {}, timeout: number = 8000): Promise<any> {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -60,6 +63,9 @@ export class PriceService {
       
       return await response.json();
     } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
       console.warn(`Request failed for ${url}:`, error.message);
       throw error;
     }
@@ -76,35 +82,55 @@ export class PriceService {
     };
 
     try {
-      // First try: Moralis API (if available)
-      if (this.MORALIS_API_KEY) {
-        try {
-          console.log('🔄 Trying Moralis API for ALGO price...');
-          const data = await this.makeRequest(
-            `${this.MORALIS_API_URL}/erc20/price?chain=algo&address=null`,
-            {
-              'X-API-Key': this.MORALIS_API_KEY
-            }
-          );
-          
-          if (data && data.usdPrice) {
-            console.log('✅ Moralis API success:', data);
-            return {
-              symbol: 'ALGO',
-              price: parseFloat(data.usdPrice),
-              change24h: parseFloat(data['24hrPercentChange'] || '0'),
-              volume24h: fallbackData.volume24h, // Moralis might not provide volume
-              marketCap: fallbackData.marketCap
-            };
-          }
-        } catch (moralisError) {
-          console.warn('Moralis API failed, trying CoinGecko...', moralisError);
+      // Try CoinPaprika first (most CORS-friendly)
+      try {
+        console.log('🔄 Trying CoinPaprika API for ALGO price...');
+        const data = await this.makeRequest(
+          `${this.COINPAPRIKA_BASE_URL}/tickers/algo-algorand`
+        );
+        
+        if (data && data.quotes && data.quotes.USD) {
+          const usdData = data.quotes.USD;
+          console.log('✅ CoinPaprika API success:', usdData);
+          return {
+            symbol: 'ALGO',
+            price: usdData.price,
+            change24h: usdData.percent_change_24h,
+            volume24h: usdData.volume_24h,
+            marketCap: usdData.market_cap
+          };
         }
-      } else {
-        console.warn('Moralis API key not available, trying CoinGecko...');
+      } catch (coinPaprikaError) {
+        console.warn('CoinPaprika API failed, trying CryptoCompare...', coinPaprikaError.message);
       }
 
-      // Second try: CoinGecko API (fallback)
+      // Try CryptoCompare as backup
+      try {
+        console.log('🔄 Trying CryptoCompare API for ALGO price...');
+        const [priceData, histoData] = await Promise.all([
+          this.makeRequest(`${this.CRYPTOCOMPARE_BASE_URL}/price?fsym=ALGO&tsyms=USD`),
+          this.makeRequest(`${this.CRYPTOCOMPARE_BASE_URL}/histoday?fsym=ALGO&tsym=USD&limit=1`)
+        ]);
+        
+        if (priceData && priceData.USD && histoData && histoData.Data) {
+          const currentPrice = priceData.USD;
+          const yesterdayPrice = histoData.Data[0]?.close || currentPrice;
+          const change24h = ((currentPrice - yesterdayPrice) / yesterdayPrice) * 100;
+          
+          console.log('✅ CryptoCompare API success:', { currentPrice, change24h });
+          return {
+            symbol: 'ALGO',
+            price: currentPrice,
+            change24h: change24h,
+            volume24h: fallbackData.volume24h, // CryptoCompare free tier doesn't include volume
+            marketCap: fallbackData.marketCap
+          };
+        }
+      } catch (cryptoCompareError) {
+        console.warn('CryptoCompare API failed, trying CoinGecko...', cryptoCompareError.message);
+      }
+
+      // Try CoinGecko as last resort (has CORS issues but might work)
       try {
         console.log('🔄 Trying CoinGecko API for ALGO price...');
         const data = await this.makeRequest(
@@ -123,7 +149,7 @@ export class PriceService {
           };
         }
       } catch (coinGeckoError) {
-        console.warn('CoinGecko API also failed', coinGeckoError);
+        console.warn('CoinGecko API also failed', coinGeckoError.message);
       }
 
       // If all APIs fail, return mock data with a warning
@@ -138,10 +164,7 @@ export class PriceService {
 
   static async getTokenPrices(assetIds: string[]): Promise<Record<string, PriceData>> {
     try {
-      // For Moralis, we might need to handle each token separately
-      // For now, fall back to CoinGecko for token prices
-      
-      // Map asset IDs to CoinGecko IDs
+      // For token prices, try CoinGecko first since it has the best coverage
       const coinGeckoIds = assetIds
         .map(id => this.ASSET_MAPPING[id])
         .filter(Boolean)
@@ -240,27 +263,36 @@ export class PriceService {
   // Method to test API connectivity
   static async testConnectivity(): Promise<{ success: boolean; message: string }> {
     try {
-      // Test Moralis API if available
-      if (this.MORALIS_API_KEY) {
-        try {
-          await this.makeRequest(
-            `${this.MORALIS_API_URL}/erc20/price?chain=algo&address=null`,
-            { 'X-API-Key': this.MORALIS_API_KEY },
-            3000
-          );
-          return { success: true, message: 'Moralis API is accessible' };
-        } catch (moralisError) {
-          console.warn('Moralis API test failed, trying CoinGecko...');
-        }
+      // Test CoinPaprika API first (most reliable)
+      try {
+        await this.makeRequest(`${this.COINPAPRIKA_BASE_URL}/global`, 3000);
+        return { success: true, message: 'CoinPaprika API is accessible' };
+      } catch (coinPaprikaError) {
+        console.warn('CoinPaprika test failed, trying CryptoCompare...');
       }
-      
+
+      // Test CryptoCompare API
+      try {
+        await this.makeRequest(`${this.CRYPTOCOMPARE_BASE_URL}/price?fsym=BTC&tsyms=USD`, 3000);
+        return { success: true, message: 'CryptoCompare API is accessible' };
+      } catch (cryptoCompareError) {
+        console.warn('CryptoCompare test failed, trying CoinGecko...');
+      }
+
       // Test CoinGecko API
-      await this.makeRequest(`${this.COINGECKO_BASE_URL}/ping`, {}, 3000);
-      return { success: true, message: 'CoinGecko API is accessible' };
+      try {
+        await this.makeRequest(`${this.COINGECKO_BASE_URL}/ping`, 3000);
+        return { success: true, message: 'CoinGecko API is accessible' };
+      } catch (coinGeckoError) {
+        return { 
+          success: false, 
+          message: 'All price APIs are inaccessible. Using mock data.' 
+        };
+      }
     } catch (error) {
       return { 
         success: false, 
-        message: 'Both price APIs are inaccessible. Using mock data.' 
+        message: 'Price API connectivity test failed. Using mock data.' 
       };
     }
   }

@@ -116,7 +116,7 @@ export const TokensGrid: React.FC = () => {
     event.stopPropagation();
     
     if (assetId) {
-      const url = `https://algoexplorer.xyz/asset/${assetId}`;
+      const url = `https://algoexplorer.io/asset/${assetId}`;
       
       // Open immediately in the click handler
       const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
@@ -248,6 +248,9 @@ export const TokensGrid: React.FC = () => {
             <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2" />
             Mock price data
           </div>
+        </div>
+        <div className="text-xs text-gray-500 mt-2">
+          Price data sources: CoinPaprika, CryptoCompare, CoinGecko (fallback to mock data if APIs unavailable)
         </div>
       </div>
     </section>
