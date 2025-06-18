@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto+Mono:wght@400;700&display=swap');
+
+body {
+  font-family: 'Roboto Mono', monospace;
+  background-color: #0a0a0a;
+  color: #e2e2e2;
+  overflow-x: hidden;
+}
+
+.glitch {
+  position: relative;
+  color: #00ffc3;
+  text-shadow: 0 0 10px rgba(0, 255, 195, 0.7);
+}
+
+.glitch::before, 
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0a0a0a;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 #ff00c3;
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim-1 2s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 #00fff9, 2px 2px #ff00c3;
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim-2 2s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+  0% { clip: rect(46px, 9999px, 119px, 0); }
+  20% { clip: rect(119px, 9999px, 100px, 0); }
+  40% { clip: rect(22px, 9999px, 53px, 0); }
+  60% { clip: rect(118px, 9999px, 47px, 0); }
+  80% { clip: rect(91px, 9999px, 113px, 0); }
+  100% { clip: rect(45px, 9999px, 100px, 0); }
+}
+
+@keyframes glitch-anim-2 {
+  0% { clip: rect(101px, 9999px, 53px, 0); }
+  20% { clip: rect(24px, 9999px, 65px, 0); }
+  40% { clip: rect(38px, 9999px, 63px, 0); }
+  60% { clip: rect(34px, 9999px, 26px, 0); }
+  80% { clip: rect(81px, 9999px, 105px, 0); }
+  100% { clip: rect(31px, 9999px, 3px, 0); }
+}
+
+.marquee {
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.terminal-box {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00ffc3;
+  box-shadow: 0 0 20px rgba(0, 255, 195, 0.3);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ffc3;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff00c3;
+}
+
+/* Smooth animations */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glow effects */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 255, 195, 0.3);
+}
+
+.glow-pink {
+  box-shadow: 0 0 20px rgba(255, 0, 195, 0.3);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(157, 0, 255, 0.3);
+}

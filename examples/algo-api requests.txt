@@ -1,0 +1,657 @@
+GET
+/debug/settings/config
+Gets the merged config file.
+
+
+
+GET
+/debug/settings/pprof
+
+
+
+PUT
+/debug/settings/pprof
+
+
+
+DELETE
+/v2/catchup/{catchpoint}
+Aborts a catchpoint catchup.
+
+
+
+POST
+/v2/catchup/{catchpoint}
+Starts a catchpoint catchup.
+
+
+
+GET
+/v2/participation
+Return a list of participation keys
+
+
+
+POST
+/v2/participation
+Add a participation key to the node
+
+
+
+POST
+/v2/participation/generate/{address}
+Generate and install participation keys to the node.
+
+
+
+DELETE
+/v2/participation/{participation-id}
+Delete a given participation key by ID
+
+
+
+GET
+/v2/participation/{participation-id}
+Get participation key info given a participation ID
+
+
+
+POST
+/v2/participation/{participation-id}
+Append state proof keys to a participation key
+
+
+
+POST
+/v2/shutdown
+
+
+public
+
+
+GET
+/genesis
+Gets the genesis information.
+
+
+
+GET
+/health
+Returns OK if healthy.
+
+
+
+GET
+/metrics
+Return metrics about algod functioning.
+
+
+
+GET
+/ready
+Returns OK if healthy and fully caught up.
+
+
+
+GET
+/swagger.json
+Gets the current swagger spec.
+
+
+
+GET
+/v2/accounts/{address}
+Get account information.
+
+
+
+GET
+/v2/accounts/{address}/applications/{application-id}
+Get account information about a given app.
+
+
+
+GET
+/v2/accounts/{address}/assets
+Get a list of assets held by an account, inclusive of asset params.
+
+
+
+GET
+/v2/accounts/{address}/assets/{asset-id}
+Get account information about a given asset.
+
+
+
+GET
+/v2/accounts/{address}/transactions/pending
+Get a list of unconfirmed transactions currently in the transaction pool by address.
+
+
+
+GET
+/v2/applications/{application-id}
+Get application information.
+
+
+
+GET
+/v2/applications/{application-id}/box
+Get box information for a given application.
+
+
+
+GET
+/v2/applications/{application-id}/boxes
+Get all box names for a given application.
+
+
+
+GET
+/v2/assets/{asset-id}
+Get asset information.
+
+
+
+GET
+/v2/blocks/{round}
+Get the block for the given round.
+
+
+
+GET
+/v2/blocks/{round}/hash
+Get the block hash for the block on the given round.
+
+
+
+GET
+/v2/blocks/{round}/header
+Get the block header for the block on the given round.
+
+
+
+GET
+/v2/blocks/{round}/lightheader/proof
+Gets a proof for a given light block header inside a state proof commitment
+
+
+
+GET
+/v2/blocks/{round}/logs
+Get all of the logs from outer and inner app calls in the given round
+
+
+
+GET
+/v2/blocks/{round}/transactions/{txid}/proof
+Get a proof for a transaction in a block.
+
+
+
+GET
+/v2/blocks/{round}/txids
+Get the top level transaction IDs for the block on the given round.
+
+
+
+GET
+/v2/deltas/txn/group/{id}
+Get a LedgerStateDelta object for a given transaction group
+
+
+
+GET
+/v2/deltas/{round}
+Get a LedgerStateDelta object for a given round
+
+
+
+GET
+/v2/deltas/{round}/txn/group
+Get LedgerStateDelta objects for all transaction groups in a given round
+
+
+
+GET
+/v2/devmode/blocks/offset
+Returns the timestamp offset. Timestamp offsets can only be set in dev mode.
+
+
+
+POST
+/v2/devmode/blocks/offset/{offset}
+Given a timestamp offset in seconds, adds the offset to every subsequent block header's timestamp.
+
+
+
+GET
+/v2/experimental
+Returns OK if experimental API is enabled.
+
+
+
+GET
+/v2/ledger/supply
+Get the current supply reported by the ledger.
+
+
+
+DELETE
+/v2/ledger/sync
+Removes minimum sync round restriction from the ledger.
+
+
+
+GET
+/v2/ledger/sync
+Returns the minimum sync round the ledger is keeping in cache.
+
+
+
+POST
+/v2/ledger/sync/{round}
+Given a round, tells the ledger to keep that round in its cache.
+
+
+
+GET
+/v2/stateproofs/{round}
+Get a state proof that covers a given round
+
+
+
+GET
+/v2/status
+Gets the current node status.
+
+
+
+GET
+/v2/status/wait-for-block-after/{round}
+Gets the node status after waiting for a round after the given round.
+
+
+
+POST
+/v2/teal/compile
+Compile TEAL source code to binary, produce its hash
+
+
+
+POST
+/v2/teal/disassemble
+Disassemble program bytes into the TEAL source code.
+
+
+
+POST
+/v2/teal/dryrun
+Provide debugging information for a transaction (or group).
+
+
+
+POST
+/v2/transactions
+Broadcasts a raw transaction or transaction group to the network.
+
+
+
+POST
+/v2/transactions/async
+Fast track for broadcasting a raw transaction or transaction group to the network through the tx handler without performing most of the checks and reporting detailed errors. Should be only used for development and performance testing.
+
+
+
+GET
+/v2/transactions/params
+Get parameters for constructing a new transaction
+
+
+
+GET
+/v2/transactions/pending
+Get a list of unconfirmed transactions currently in the transaction pool.
+
+
+
+GET
+/v2/transactions/pending/{txid}
+Get a specific pending transaction.
+
+
+
+POST
+/v2/transactions/simulate
+Simulates a raw transaction or transaction group as it would be evaluated on the network. The simulation will use blockchain state from the latest committed round.
+
+
+
+GET
+/versions
+
+
+common
+
+
+GET
+/genesis
+Gets the genesis information.
+
+
+
+GET
+/health
+Returns OK if healthy.
+
+
+
+GET
+/metrics
+Return metrics about algod functioning.
+
+
+
+GET
+/ready
+Returns OK if healthy and fully caught up.
+
+
+
+GET
+/swagger.json
+Gets the current swagger spec.
+
+
+
+GET
+/versions
+
+
+nonparticipating
+
+
+GET
+/v2/accounts/{address}
+Get account information.
+
+
+
+GET
+/v2/accounts/{address}/applications/{application-id}
+Get account information about a given app.
+
+
+
+GET
+/v2/accounts/{address}/assets/{asset-id}
+Get account information about a given asset.
+
+
+
+GET
+/v2/applications/{application-id}
+Get application information.
+
+
+
+GET
+/v2/applications/{application-id}/box
+Get box information for a given application.
+
+
+
+GET
+/v2/applications/{application-id}/boxes
+Get all box names for a given application.
+
+
+
+GET
+/v2/assets/{asset-id}
+Get asset information.
+
+
+
+GET
+/v2/blocks/{round}
+Get the block for the given round.
+
+
+
+GET
+/v2/blocks/{round}/hash
+Get the block hash for the block on the given round.
+
+
+
+GET
+/v2/blocks/{round}/header
+Get the block header for the block on the given round.
+
+
+
+GET
+/v2/blocks/{round}/lightheader/proof
+Gets a proof for a given light block header inside a state proof commitment
+
+
+
+GET
+/v2/blocks/{round}/logs
+Get all of the logs from outer and inner app calls in the given round
+
+
+
+GET
+/v2/blocks/{round}/transactions/{txid}/proof
+Get a proof for a transaction in a block.
+
+
+
+GET
+/v2/blocks/{round}/txids
+Get the top level transaction IDs for the block on the given round.
+
+
+
+DELETE
+/v2/catchup/{catchpoint}
+Aborts a catchpoint catchup.
+
+
+
+POST
+/v2/catchup/{catchpoint}
+Starts a catchpoint catchup.
+
+
+
+GET
+/v2/deltas/txn/group/{id}
+Get a LedgerStateDelta object for a given transaction group
+
+
+
+GET
+/v2/deltas/{round}
+Get a LedgerStateDelta object for a given round
+
+
+
+GET
+/v2/deltas/{round}/txn/group
+Get LedgerStateDelta objects for all transaction groups in a given round
+
+
+
+GET
+/v2/devmode/blocks/offset
+Returns the timestamp offset. Timestamp offsets can only be set in dev mode.
+
+
+
+POST
+/v2/devmode/blocks/offset/{offset}
+Given a timestamp offset in seconds, adds the offset to every subsequent block header's timestamp.
+
+
+
+GET
+/v2/ledger/supply
+Get the current supply reported by the ledger.
+
+
+
+POST
+/v2/shutdown
+
+
+
+GET
+/v2/stateproofs/{round}
+Get a state proof that covers a given round
+
+
+
+GET
+/v2/status
+Gets the current node status.
+
+
+
+GET
+/v2/status/wait-for-block-after/{round}
+Gets the node status after waiting for a round after the given round.
+
+
+
+POST
+/v2/teal/compile
+Compile TEAL source code to binary, produce its hash
+
+
+
+POST
+/v2/teal/disassemble
+Disassemble program bytes into the TEAL source code.
+
+
+
+POST
+/v2/teal/dryrun
+Provide debugging information for a transaction (or group).
+
+
+
+GET
+/v2/transactions/params
+Get parameters for constructing a new transaction
+
+
+
+POST
+/v2/transactions/simulate
+Simulates a raw transaction or transaction group as it would be evaluated on the network. The simulation will use blockchain state from the latest committed round.
+
+
+experimental
+
+
+GET
+/v2/accounts/{address}/assets
+Get a list of assets held by an account, inclusive of asset params.
+
+
+
+GET
+/v2/experimental
+Returns OK if experimental API is enabled.
+
+
+
+POST
+/v2/transactions/async
+Fast track for broadcasting a raw transaction or transaction group to the network through the tx handler without performing most of the checks and reporting detailed errors. Should be only used for development and performance testing.
+
+
+participating
+
+
+GET
+/v2/accounts/{address}/transactions/pending
+Get a list of unconfirmed transactions currently in the transaction pool by address.
+
+
+
+GET
+/v2/participation
+Return a list of participation keys
+
+
+
+POST
+/v2/participation
+Add a participation key to the node
+
+
+
+POST
+/v2/participation/generate/{address}
+Generate and install participation keys to the node.
+
+
+
+DELETE
+/v2/participation/{participation-id}
+Delete a given participation key by ID
+
+
+
+GET
+/v2/participation/{participation-id}
+Get participation key info given a participation ID
+
+
+
+POST
+/v2/participation/{participation-id}
+Append state proof keys to a participation key
+
+
+
+POST
+/v2/transactions
+Broadcasts a raw transaction or transaction group to the network.
+
+
+
+GET
+/v2/transactions/pending
+Get a list of unconfirmed transactions currently in the transaction pool.
+
+
+
+GET
+/v2/transactions/pending/{txid}
+Get a specific pending transaction.
+
+
+data
+
+
+DELETE
+/v2/ledger/sync
+Removes minimum sync round restriction from the ledger.
+
+
+
+GET
+/v2/ledger/sync
+Returns the minimum sync round the ledger is keeping in cache.
+
+
+
+POST
+/v2/ledger/sync/{round}
+Given a round, tells the ledger to keep that round in its cache.
