@@ -13,9 +13,7 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
 
 🌐 **Live Demo**: [https://famous-selkie-fc4c64.netlify.app/](https://famous-selkie-fc4c64.netlify.app/)
 
-![image](https://github.com/user-attachments/assets/7bd053d5-ac66-4c4f-bf09-61145203d1d2)
-
-
+![algrando-terminal](https://github.com/user-attachments/assets/76368a83-b940-424e-ab20-ee21f1137348)
 
 ## Features
 
