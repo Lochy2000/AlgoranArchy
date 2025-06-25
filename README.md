@@ -5,6 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Algorand](https://img.shields.io/badge/Algorand-000000?logo=algorand&logoColor=white)](https://algorand.com/)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/87217fb3-fa94-48ad-98bb-dd35ee0c0249/deploy-status)](https://app.netlify.com/projects/roaring-phoenix-290d3c/deploys)
 
 > **The most rebellious Algorand blockchain explorer on the web** 🚀
 
