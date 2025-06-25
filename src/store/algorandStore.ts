@@ -81,7 +81,7 @@ export const useAlgorandStore = create<AlgorandState>((set, get) => ({
   fetchLatestBlocks: async () => {
     set({ isLoadingBlocks: true, error: null });
     try {
-      const blocks = await AlgorandService.getLatestBlocks(5);
+      const blocks = await AlgorandService.getLatestBlocks(10);
       set({ latestBlocks: blocks, isLoadingBlocks: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch latest blocks';
@@ -128,7 +128,7 @@ export const useAlgorandStore = create<AlgorandState>((set, get) => ({
   fetchTopAssets: async () => {
     set({ isLoadingAssets: true, error: null });
     try {
-      const assets = await AlgorandService.getTopAssets(8);
+      const assets = await AlgorandService.getTopAssets(6);
       set({ topAssets: assets, isLoadingAssets: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch top assets';

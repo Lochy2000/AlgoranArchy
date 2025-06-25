@@ -42,41 +42,7 @@ export const BlocksTable: React.FC = () => {
     }
   };
 
-  // Generate mock blocks if no real data is available
-  const getDisplayBlocks = () => {
-    if (latestBlocks.length > 0) {
-      return latestBlocks;
-    }
-    
-    // Generate mock blocks based on current node status
-    const currentRound = nodeStatus?.['last-round'] || 50789234;
-    const mockBlocks = [];
-    
-    for (let i = 0; i < 5; i++) {
-      mockBlocks.push({
-        round: currentRound - i,
-        'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
-        'genesis-id': 'mainnet-v1.0',
-        'previous-block-hash': `${Math.random().toString(36).substring(2, 8)}...${Math.random().toString(36).substring(2, 8)}`,
-        rewards: {
-          'fee-sink': 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE',
-          'rewards-calculation-round': currentRound - i,
-          'rewards-level': 0,
-          'rewards-pool': 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE',
-          'rewards-rate': 0,
-          'rewards-residue': 0
-        },
-        seed: 'mock-seed',
-        timestamp: Math.floor(Date.now() / 1000) - (i * 45),
-        'transactions-root': 'mock-tx-root',
-        'txn-counter': Math.floor(Math.random() * 200) + 50
-      });
-    }
-    
-    return mockBlocks;
-  };
-
-  const displayBlocks = getDisplayBlocks();
+  const displayBlocks = latestBlocks;
 
   return (
     <section id="blocks" className="mb-16">
@@ -137,7 +103,7 @@ export const BlocksTable: React.FC = () => {
                     {block['previous-block-hash'] ? AlgorandService.shortenAddress(block['previous-block-hash'], 5) : 'N/A'}
                   </td>
                   <td className="px-6 py-4">
-                    {(Math.random() * 2 + 6).toFixed(2)} ALGO
+                    {block.rewards ? `${AlgorandService.formatAlgoAmount(block.rewards['rewards-rate'] || 0)} ALGO` : 'N/A'}
                   </td>
                   <td className="px-6 py-4">
                     <button 
