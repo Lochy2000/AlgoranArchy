@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AlgorandAPIService } from './algorandService';
+import { AlgorandService } from './algorandService';
 
 interface DexQuote {
   inputAsset: number;
@@ -384,7 +384,7 @@ export class EnhancedDexService {
     try {
       console.log('🔨 Building swap transaction...', quote);
       
-      const params = await AlgorandAPIService.getTransactionParams();
+      const params = await AlgorandService.getTransactionParams();
       
       if (quote.dex === 'tinyman') {
         return this.buildTinymanSwap(quote, walletAddress, params, slippage);

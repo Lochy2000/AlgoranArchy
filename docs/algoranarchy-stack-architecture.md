@@ -76,7 +76,7 @@ algoranarchy/
 │   ├── explorer.tsx    # Blockchain explorer
 │   └── capsule.tsx     # Time capsule creation
 ├── hooks/              # State and API logic
-├── utils/              # Blockchain + IPFS helpers
+├── services/           # Blockchain and API helpers
 ├── public/             # Static assets (images, icons)
 ├── styles/             # Tailwind config
 ├── .env.local          # Secure API keys

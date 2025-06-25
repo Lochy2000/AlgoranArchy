@@ -7,7 +7,7 @@ const MAINNET_INDEXER = import.meta.env.VITE_ALGO_INDEXER_MAINNET || 'https://ma
 const DEBUG_MODE = import.meta.env.VITE_DEBUG_MODE === 'true';
 
 // Enhanced Algorand service with proper API token injection and error handling
-export class AlgorandAPIService {
+export class AlgorandService {
   private static algodClient: algosdk.Algodv2;
   private static indexerClient: algosdk.Indexer;
   private static isInitialized = false;
@@ -290,10 +290,25 @@ export class AlgorandAPIService {
         .searchForTransactions()
         .round(round)
         .do();
-      
+
       return response.transactions || [];
     } catch (error) {
       console.warn(`Failed to fetch transactions for block ${round}:`, error);
+      return [];
+    }
+  }
+
+  static async searchTransactions(address?: string, limit: number = 10): Promise<Transaction[]> {
+    this.initialize();
+    try {
+      let query = this.indexerClient.searchForTransactions().limit(limit);
+      if (address) {
+        query = query.address(address);
+      }
+      const response = await query.do();
+      return response.transactions || [];
+    } catch (error) {
+      console.warn('Failed to search transactions:', error);
       return [];
     }
   }

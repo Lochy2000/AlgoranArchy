@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { AlgorandAccount, Block, NodeStatus, LedgerSupply, AssetInfo, Transaction } from '../types/algorand';
-import { AlgorandAPIService } from '../services/algorandService';
+import { AlgorandService } from '../services/algorandService';
 import { EnhancedDexService } from '../services/enhancedDexService';
 
 interface EnhancedAlgorandState {
@@ -83,7 +83,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     fetchNodeStatus: async () => {
       set({ isLoadingStatus: true, error: null });
       try {
-        const status = await AlgorandAPIService.getNodeStatus();
+        const status = await AlgorandService.getNodeStatus();
         set({ nodeStatus: status, isLoadingStatus: false });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to fetch node status';
@@ -94,7 +94,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
 
     fetchLedgerSupply: async () => {
       try {
-        const supply = await AlgorandAPIService.getLedgerSupply();
+        const supply = await AlgorandService.getLedgerSupply();
         set({ ledgerSupply: supply });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to fetch ledger supply';
@@ -105,7 +105,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
 
     fetchNetworkStats: async () => {
       try {
-        const stats = await AlgorandAPIService.getNetworkStats();
+        const stats = await AlgorandService.getNetworkStats();
         set({ networkStats: stats });
       } catch (error) {
         console.error('Store: fetchNetworkStats error:', error);
@@ -115,7 +115,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     fetchLatestBlocks: async (count = 10) => {
       set({ isLoadingBlocks: true, error: null });
       try {
-        const blocks = await AlgorandAPIService.getLatestBlocks(count);
+        const blocks = await AlgorandService.getLatestBlocks(count);
         set({ latestBlocks: blocks, isLoadingBlocks: false });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to fetch latest blocks';
@@ -127,7 +127,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     fetchBlock: async (round: number) => {
       set({ isLoadingBlocks: true, error: null });
       try {
-        const block = await AlgorandAPIService.getBlock(round);
+        const block = await AlgorandService.getBlock(round);
         set({ currentBlock: block, isLoadingBlocks: false });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : `Failed to fetch block ${round}`;
@@ -139,7 +139,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     fetchLatestTransactions: async (count = 20) => {
       set({ isLoadingTransactions: true, error: null });
       try {
-        const transactions = await AlgorandAPIService.getLatestTransactions(count);
+        const transactions = await AlgorandService.getLatestTransactions(count);
         set({ latestTransactions: transactions, isLoadingTransactions: false });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to fetch latest transactions';
@@ -150,7 +150,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
 
     fetchTransaction: async (txId: string) => {
       try {
-        const transaction = await AlgorandAPIService.getTransaction(txId);
+        const transaction = await AlgorandService.getTransaction(txId);
         return transaction;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to fetch transaction';
@@ -163,7 +163,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     fetchAccount: async (address: string) => {
       set({ isLoadingAccount: true, error: null });
       try {
-        const account = await AlgorandAPIService.getAccount(address);
+        const account = await AlgorandService.getAccount(address);
         set({ connectedAccount: account, isLoadingAccount: false });
         return account;
       } catch (error) {
@@ -177,7 +177,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     fetchAccountTransactions: async (address: string) => {
       set({ isLoadingTransactions: true });
       try {
-        const transactions = await AlgorandAPIService.getAccountTransactions(address, 20);
+        const transactions = await AlgorandService.getAccountTransactions(address, 20);
         set({ accountTransactions: transactions, isLoadingTransactions: false });
       } catch (error) {
         console.error('Store: fetchAccountTransactions error:', error);
@@ -188,7 +188,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     fetchTopAssets: async (limit = 20) => {
       set({ isLoadingAssets: true, error: null });
       try {
-        const assets = await AlgorandAPIService.getTopAssets(limit);
+        const assets = await AlgorandService.getTopAssets(limit);
         set({ topAssets: assets, isLoadingAssets: false });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to fetch top assets';
@@ -200,7 +200,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
     searchAssets: async (query: string) => {
       set({ isLoadingAssets: true });
       try {
-        const results = await AlgorandAPIService.searchAssets(query, 10);
+        const results = await AlgorandService.searchAssets(query, 10);
         set({ searchResults: results, isLoadingAssets: false });
       } catch (error) {
         console.error('Store: searchAssets error:', error);
