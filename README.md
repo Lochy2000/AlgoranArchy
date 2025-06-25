@@ -15,30 +15,30 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
 
 ![ALGORANARCHY Screenshot](https://github.com/user-attachments/assets/61166ee3-0f91-4642-9202-6465bdc38ac2)
 
-## ✨ Features
+## Features
 
-### 🔗 **Enhanced Blockchain Explorer**
+### **Enhanced Blockchain Explorer**
 - **Real-time Data**: Live blocks, transactions, and network statistics with proper API token injection
 - **Fixed Explorer Links**: Working links to AlgoExplorer.dev for detailed block/transaction views
 - **Network Health**: Monitor node distribution and consensus participation
 - **Supply Metrics**: Track total and online stake in real-time
 - **Error Handling**: Comprehensive fallback systems and user feedback
 
-### 💰 **Improved Wallet Integration**
+### **Improved Wallet Integration**
 - **Multi-Wallet Support**: Pera Wallet, MyAlgo Connect, and demo mode
 - **Fixed Bridge URLs**: Correct Pera Wallet bridge configuration
 - **Secure Connections**: Industry-standard wallet connection protocols
 - **Account Overview**: View balances, assets, and transaction history
 - **Transaction Signing**: Full support for transaction creation and signing
 
-### 📈 **Enhanced Trading & DeFi**
+### **Enhanced Trading & DeFi**
 - **Multi-DEX Integration**: Support for Tinyman, Pact, and Vestige
 - **Real-time Prices**: Live price feeds from Moralis, CoinGecko, and CoinPaprika APIs
 - **Quote System**: Get accurate swap quotes with fallback mechanisms
 - **Price Tracking**: Monitor token performance with 24h changes
 - **CORS Handling**: Proper error handling for DEX API restrictions
 
-### 🎨 **Punk Rock UI with Better UX**
+### **Punk Rock UI with Better UX**
 - **Glitch Effects**: Cyberpunk-inspired visual elements
 - **Neon Colors**: Eye-catching cyan, pink, and purple color scheme
 - **Responsive Design**: Perfect on desktop, tablet, and mobile
@@ -46,7 +46,7 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
 - **Error Banners**: Informative error messages with actionable solutions
 - **Animated Globe**: Real-time 3D visualization of global node distribution
 
-### 🛠️ **Enhanced Developer Tools**
+### **Enhanced Developer Tools**
 - **Comprehensive Debug Panel**: Real-time API monitoring and troubleshooting
 - **Environment Validation**: Check all required environment variables
 - **API Connectivity Tests**: Test Algorand, Price, and DEX APIs
@@ -54,7 +54,7 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
 - **Modular Architecture**: Clean, maintainable code structure
 - **Detailed Documentation**: Complete setup and deployment guides
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
@@ -104,7 +104,7 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
 5. **Open your browser**
    Navigate to `http://localhost:5173` and start exploring!
 
-## 🔑 API Setup
+## API Setup
 
 ### Required APIs
 
@@ -133,7 +133,7 @@ npm install @perawallet/connect @randlabs/myalgo-connect
 
 See our [API Setup Guide](docs/API_SETUP.md) for detailed instructions.
 
-## 📱 What's Fixed & Working
+## What's Fixed & Working
 
 ✅ **Fixed API Token Injection** - Proper X-Algo-API-Token headers for Nodely endpoints  
 ✅ **Fixed Explorer Links** - Working links to AlgoExplorer.dev  
@@ -146,7 +146,7 @@ See our [API Setup Guide](docs/API_SETUP.md) for detailed instructions.
 ✅ **Responsive UI** - Mobile-first punk rock design  
 ✅ **Enhanced trading** - Multi-DEX support with proper error handling  
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
 - **Styling**: Tailwind CSS with custom punk rock theme
@@ -156,7 +156,7 @@ See our [API Setup Guide](docs/API_SETUP.md) for detailed instructions.
 - **APIs**: Algorand Node, Moralis, CoinGecko, CoinPaprika, Tinyman, Pact
 - **Deployment**: Netlify (live at [famous-selkie-fc4c64.netlify.app](https://famous-selkie-fc4c64.netlify.app/))
 
-## 🌐 Deployment
+## Deployment
 
 The application is deployed on Netlify with the following environment variables configured:
 
@@ -203,7 +203,7 @@ Deploy the `server/` folder to your preferred Node.js hosting platform
 (Render, Vercel, etc.). Ensure the same environment variables are configured and
 update your frontend to point to the deployed backend URL.
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -227,7 +227,7 @@ update your frontend to point to the deployed backend URL.
 - Use the debug panel (bottom right) to test all APIs
 - Check environment variables and connectivity
 
-## 📖 Documentation
+## Documentation
 
 - [API Setup Guide](docs/API_SETUP.md) - Configure all necessary APIs
 - [Deployment Guide](docs/DEPLOYMENT.md) - Deploy to various platforms
@@ -235,29 +235,29 @@ update your frontend to point to the deployed backend URL.
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Changelog](CHANGELOG.md) - Version history and updates
 
-## 🎯 Roadmap
+## Roadmap
 
-### Phase 1: Core Fixes ✅
+### Phase 1: Core Fixes 
 - [x] Fix API token injection for Algorand endpoints
 - [x] Fix explorer links to use AlgoExplorer.dev
 - [x] Fix Pera Wallet bridge URL
 - [x] Enhanced error handling and user feedback
 - [x] CORS handling for DEX APIs
 
-### Phase 2: Advanced Features 🚧
+### Phase 2: Advanced Features 
 - [ ] Backend proxy for DEX APIs
 - [ ] Portfolio tracking
 - [ ] Price alerts and notifications
 - [ ] Advanced charting
 - [ ] NFT marketplace integration
 
-### Phase 3: Community Features 🔮
+### Phase 3: Community Features 
 - [ ] User accounts and profiles
 - [ ] Social trading features
 - [ ] Community governance
 - [ ] Mobile app
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
@@ -272,34 +272,34 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Algorand Foundation** - For building an amazing blockchain
 - **Algorand Community** - For continuous support and feedback
 - **Open Source Contributors** - For making this project possible
 
-## 📞 Support
+## Support
 
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/yourusername/algoranarchy/issues)
-- 💡 **Feature Requests**: [Start a discussion](https://github.com/yourusername/algoranarchy/discussions)
-- 📧 **Email**: lochlann_oht@hotmail.com
-- 🌐 **Live Demo**: [https://famous-selkie-fc4c64.netlify.app/](https://famous-selkie-fc4c64.netlify.app/)
+- **Bug Reports**: [Open an issue](https://github.com/yourusername/algoranarchy/issues)
+- **Feature Requests**: [Start a discussion](https://github.com/yourusername/algoranarchy/discussions)
+- **Email**: lochlann_oht@hotmail.com
+- **Live Demo**: [https://famous-selkie-fc4c64.netlify.app/](https://famous-selkie-fc4c64.netlify.app/)
 
-## ⭐ Show Your Support
+## Show Your Support
 
 If you like this project, please consider:
-- ⭐ Starring the repository
-- 🐦 Sharing on social media
-- 🤝 Contributing to the codebase
-- ☕ [Buying us a coffee](https://buymeacoffee.com/algoranarchy)
+- Starring the repository
+- Sharing on social media
+- Contributing to the codebase
+- [Buying us a coffee]([https://buymeacoffee.com/algoranarchy](https://buymeacoffee.com/lohiggins0m))
 
 ---
 
-**Built with ❤️ and 🤘 by the ALGORANARCHY team**
+**Built with and by the ALGORANARCHY team**
 
-*Rock the blockchain!* 🚀
+*Rock the blockchain!* 
 
-## 🔥 Recent Updates
+## Recent Updates
 
 ### v2.0.0 - Major Fixes & Enhancements
 - **Fixed API Token Injection**: Proper X-Algo-API-Token headers for all Algorand API calls
