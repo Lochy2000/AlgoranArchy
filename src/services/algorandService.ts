@@ -95,8 +95,8 @@ export class AlgorandService {
         'time-since-last-round': Number(status.timeSinceLastRound || 0)
       };
     } catch (error) {
-      console.warn('Failed to fetch node status, using mock data:', error);
-      return this.getMockNodeStatus();
+      console.warn('Failed to fetch node status:', error);
+      throw error;
     }
   }
 
@@ -110,8 +110,8 @@ export class AlgorandService {
         total_money: Number(supply.totalMoney || 0)
       };
     } catch (error) {
-      console.warn('Failed to fetch ledger supply, using mock data:', error);
-      return this.getMockLedgerSupply();
+      console.warn('Failed to fetch ledger supply:', error);
+      throw error;
     }
   }
 
@@ -130,23 +130,22 @@ export class AlgorandService {
             const block = await this.getBlock(round);
             blocks.push(block);
           } catch (blockError) {
-            // If individual block fails, create mock block
-            blocks.push(this.getMockBlock(round));
+            console.warn(`Failed to fetch block ${round}:`, blockError);
           }
         }
       }
 
       return blocks;
     } catch (error) {
-      console.warn('Failed to fetch latest blocks, using mock data:', error);
-      return this.getMockBlocks(count);
+      console.warn('Failed to fetch latest blocks:', error);
+      return [];
     }
   }
 
   static async getBlock(round: number): Promise<Block> {
     this.initialize();
     try {
-      const blockResponse = await this.algodClient.block(round).do();
+      const blockResponse = await this.indexerClient.lookupBlock(round).do();
       const block = blockResponse.block;
 
       return {
@@ -169,8 +168,8 @@ export class AlgorandService {
         transactions: block.txns || []
       };
     } catch (error) {
-      console.warn(`Failed to fetch block ${round}, using mock data:`, error);
-      return this.getMockBlock(round);
+      console.warn(`Failed to fetch block ${round}:`, error);
+      throw error;
     }
   }
 

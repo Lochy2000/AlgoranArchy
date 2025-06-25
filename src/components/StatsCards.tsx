@@ -1,40 +1,63 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Cuboid as Cube, ArrowUpDown, DollarSign, Server, TrendingUp, TrendingDown } from 'lucide-react';
 import { useAlgorandStore } from '../store/algorandStore';
-import { AlgorandService } from '../services/algorandService';
+import { PriceService } from '../services/priceService';
+
+interface AlgoPrice {
+  price: number;
+  change24h: number;
+}
 
 export const StatsCards: React.FC = () => {
   const { nodeStatus, ledgerSupply } = useAlgorandStore();
+  const [algoPrice, setAlgoPrice] = useState<AlgoPrice | null>(null);
+
+  const pollInterval = parseInt(import.meta.env.VITE_POLL_INTERVAL_MS || '30000');
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const price = await PriceService.getAlgorandPrice();
+        setAlgoPrice({ price: price.price, change24h: price.change24h });
+      } catch (err) {
+        console.warn('Failed to fetch ALGO price:', err);
+      }
+    };
+
+    load();
+    const id = setInterval(load, pollInterval);
+    return () => clearInterval(id);
+  }, [pollInterval]);
 
   const stats = [
     {
       title: 'BLOCK HEIGHT',
       value: nodeStatus?.['last-round'] ? nodeStatus['last-round'].toLocaleString() : '---',
-      change: '+4.2%',
+      change: '',
       trend: 'up',
       icon: Cube,
       color: 'cyan',
     },
     {
       title: 'TOTAL SUPPLY',
-      value: ledgerSupply?.total_money ? `${(ledgerSupply.total_money / 1000000).toFixed(0)}M` : '---',
-      change: '+0.1%',
+      value: ledgerSupply?.total_money ? `${(ledgerSupply.total_money / 1_000_000).toFixed(0)}M` : '---',
+      change: '',
       trend: 'up',
       icon: ArrowUpDown,
       color: 'pink',
     },
     {
       title: 'ALGO PRICE',
-      value: '$0.18',
-      change: '-1.3%',
-      trend: 'down',
+      value: algoPrice ? `$${algoPrice.price.toFixed(algoPrice.price < 1 ? 4 : 2)}` : '---',
+      change: algoPrice ? `${algoPrice.change24h >= 0 ? '+' : ''}${algoPrice.change24h.toFixed(2)}%` : '',
+      trend: algoPrice && algoPrice.change24h >= 0 ? 'up' : 'down',
       icon: DollarSign,
       color: 'purple',
     },
     {
       title: 'ONLINE STAKE',
-      value: ledgerSupply?.online_money ? `${(ledgerSupply.online_money / 1000000).toFixed(0)}M` : '---',
-      change: '+2.1%',
+      value: ledgerSupply?.online_money ? `${(ledgerSupply.online_money / 1_000_000).toFixed(0)}M` : '---',
+      change: '',
       trend: 'up',
       icon: Server,
       color: 'yellow',

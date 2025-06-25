@@ -5,21 +5,28 @@ import { PriceService } from '../services/priceService';
 
 export const TokensGrid: React.FC = () => {
   const { topAssets, isLoadingAssets, fetchTopAssets } = useAlgorandStore();
-  const [priceData, setPriceData] = useState<any>(null);
+  const [priceData, setPriceData] = useState<Record<string, any> | null>(null);
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
 
   useEffect(() => {
     fetchTopAssets();
-    fetchPriceData();
   }, [fetchTopAssets]);
 
+  useEffect(() => {
+    if (topAssets.length > 0) {
+      fetchPriceData();
+    }
+  }, [topAssets]);
+
   const fetchPriceData = async () => {
+    if (topAssets.length === 0) return;
     setIsLoadingPrices(true);
     try {
-      const marketData = await PriceService.getMarketData();
-      setPriceData(marketData);
+      const ids = topAssets.slice(0, 6).map(a => a.index.toString());
+      const prices = await PriceService.getTokenPrices(ids);
+      setPriceData(prices);
     } catch (error) {
-      console.error('Failed to fetch price data:', error);
+      console.warn('Failed to fetch token prices:', error);
     } finally {
       setIsLoadingPrices(false);
     }
@@ -27,63 +34,21 @@ export const TokensGrid: React.FC = () => {
 
   // Enhanced token data with real prices when available
   const getTokenData = () => {
-    const baseTokens = [
-      {
-        symbol: 'USDC',
-        name: 'USD Coin',
-        assetId: 31566704,
-        color: 'from-blue-500 to-blue-300',
-        icon: '$'
-      },
-      {
-        symbol: 'USDT',
-        name: 'Tether USD',
-        assetId: 312769,
-        color: 'from-green-500 to-green-300',
-        icon: '₮'
-      },
-      {
-        symbol: 'goETH',
-        name: 'Goerli ETH',
-        assetId: 386192725,
-        color: 'from-purple-500 to-purple-300',
-        icon: 'Ξ'
-      },
-      {
-        symbol: 'goBTC',
-        name: 'Goerli BTC',
-        assetId: 386195940,
-        color: 'from-yellow-500 to-yellow-300',
-        icon: '₿'
-      },
-    ];
-
-    return baseTokens.map(token => {
-      const realPrice = priceData?.tokens?.[token.assetId.toString()];
-      
-      if (realPrice) {
-        return {
-          ...token,
-          price: `$${realPrice.price.toFixed(realPrice.price < 1 ? 4 : 2)}`,
-          change: `${realPrice.change24h >= 0 ? '+' : ''}${realPrice.change24h.toFixed(2)}%`,
-          volume: `${(realPrice.volume24h / 1000000).toFixed(1)}M`,
-          trend: realPrice.change24h >= 0 ? 'up' : 'down',
-          isReal: true
-        };
-      }
-
-      // Fallback to mock data
-      const mockData = {
-        'USDC': { price: '$0.999', change: '+0.1%', volume: '12.4M', trend: 'up' },
-        'USDT': { price: '$0.998', change: '-0.2%', volume: '8.7M', trend: 'down' },
-        'goETH': { price: '$1,827', change: '+1.5%', volume: '5.2M', trend: 'up' },
-        'goBTC': { price: '$30,458', change: '+2.3%', volume: '4.1M', trend: 'up' },
-      };
+    return topAssets.slice(0, 6).map(asset => {
+      const price = priceData?.[asset.index.toString()];
+      const symbol = asset.params['unit-name'] || asset.params.name || asset.index.toString();
 
       return {
-        ...token,
-        ...mockData[token.symbol as keyof typeof mockData],
-        isReal: false
+        symbol,
+        name: asset.params.name || 'Unknown',
+        assetId: asset.index,
+        color: 'from-pink-500 to-purple-500',
+        icon: symbol.charAt(0).toUpperCase(),
+        price: price ? `$${price.price.toFixed(price.price < 1 ? 4 : 2)}` : 'N/A',
+        change: price ? `${price.change24h >= 0 ? '+' : ''}${price.change24h.toFixed(2)}%` : 'N/A',
+        volume: price ? `${(price.volume24h / 1_000_000).toFixed(1)}M` : 'N/A',
+        trend: price ? (price.change24h >= 0 ? 'up' : 'down') : 'up',
+        isReal: !!price
       };
     });
   };
@@ -213,29 +178,6 @@ export const TokensGrid: React.FC = () => {
           );
         })}
       </div>
-
-      {/* Real Algorand Assets Section */}
-      {topAssets.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-xl font-bold text-cyan-400 mb-4">Real Algorand Assets</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {topAssets.slice(0, 6).map((asset, index) => (
-              <div 
-                key={asset.index || index}
-                className="bg-gray-900 border border-gray-700 p-4 rounded-lg hover:border-cyan-400 transition-all cursor-pointer"
-                onClick={(e) => handleTokenClick(e, asset.index)}
-              >
-                <div className="font-mono text-cyan-400">#{asset.index}</div>
-                <div className="font-bold text-white">{asset.params.name || 'Unnamed Asset'}</div>
-                <div className="text-sm text-gray-400">{asset.params['unit-name'] || 'N/A'}</div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Total: {asset.params.total?.toLocaleString() || 'N/A'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Price Data Status */}
       <div className="mt-6 text-center">
