@@ -171,6 +171,38 @@ VITE_ENVIRONMENT=production
 
 For deployment instructions, see our [Deployment Guide](docs/DEPLOYMENT.md).
 
+### Backend API Proxy
+
+ALGORANARCHY now includes a lightweight Express.js backend used to bypass CORS
+restrictions for Tinyman, Pact and Vestige DEX APIs.
+
+#### Running Locally
+
+```bash
+# Start the proxy server
+cd server && npm install
+npm start
+```
+
+The proxy listens on `http://localhost:3000` and exposes `/api/tinyman/*`,
+`/api/pact/*` and `/api/vestige/*` routes.
+
+Environment variables for Algorand API tokens should be defined without the
+`VITE_` prefix, for example:
+
+```env
+ALGO_API_TOKEN=your_algorand_api_token
+TINYMAN_API_TOKEN=optional_tinyman_token
+PACT_API_TOKEN=optional_pact_token
+VESTIGE_API_TOKEN=optional_vestige_token
+```
+
+#### Production Deployment
+
+Deploy the `server/` folder to your preferred Node.js hosting platform
+(Render, Vercel, etc.). Ensure the same environment variables are configured and
+update your frontend to point to the deployed backend URL.
+
 ## 🔧 Troubleshooting
 
 ### Common Issues
