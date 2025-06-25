@@ -1,4 +1,4 @@
-# 🤘 ALGORANARCHY - Enhanced Punk Rock Algorand Explorer
+# 🤘 ALGORANARCHY - Punk Rock Theme Algorand Explorer
 
 [![Deploy Status](https://img.shields.io/badge/deploy-ready-brightgreen)](https://famous-selkie-fc4c64.netlify.app/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
