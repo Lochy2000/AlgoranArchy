@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { AlgorandAccount, Block, NodeStatus, LedgerSupply, AssetInfo } from '../types/algorand';
-import { AlgorandService } from '../utils/algorand';
+import { AlgorandService } from '../services/algorandService';
 
 interface AlgorandState {
   // Node status

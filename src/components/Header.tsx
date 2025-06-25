@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, Zap, ChevronDown, Wallet, LogOut } from 'lucide-react';
-import { AlgorandService } from '../utils/algorand';
+import { AlgorandService } from '../services/algorandService';
 
 interface HeaderProps {
   onConnectWallet: () => void;

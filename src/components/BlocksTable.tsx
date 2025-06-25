@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { RefreshCw, ExternalLink } from 'lucide-react';
 import { useAlgorandStore } from '../store/algorandStore';
-import { AlgorandService } from '../utils/algorand';
+import { AlgorandService } from '../services/algorandService';
 
 export const BlocksTable: React.FC = () => {
   const { latestBlocks, isLoadingBlocks, fetchLatestBlocks, nodeStatus } = useAlgorandStore();

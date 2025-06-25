@@ -1,7 +1,7 @@
 import React from 'react';
 import { Cuboid as Cube, ArrowUpDown, DollarSign, Server, TrendingUp, TrendingDown } from 'lucide-react';
 import { useAlgorandStore } from '../store/algorandStore';
-import { AlgorandService } from '../utils/algorand';
+import { AlgorandService } from '../services/algorandService';
 
 export const StatsCards: React.FC = () => {
   const { nodeStatus, ledgerSupply } = useAlgorandStore();

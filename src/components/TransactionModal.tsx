@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, ExternalLink, Clock, CheckCircle, AlertCircle, ArrowRight } from 'lucide-react';
-import { AlgorandAPIService } from '../services/algorandService';
+import { AlgorandService } from '../services/algorandService';
 import type { Transaction } from '../types/algorand';
 
 interface TransactionModalProps {
@@ -31,7 +31,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const fetchLatestTransactions = async () => {
     try {
-      const txs = await AlgorandAPIService.getLatestTransactions(10);
+      const txs = await AlgorandService.getLatestTransactions(10);
       setLatestTransactions(txs);
     } catch (error) {
       console.warn('Failed to fetch latest transactions:', error);
@@ -47,7 +47,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     setTransaction(null);
 
     try {
-      const tx = await AlgorandAPIService.getTransaction(searchId);
+      const tx = await AlgorandService.getTransaction(searchId);
       setTransaction(tx);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Transaction not found');
@@ -57,7 +57,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   };
 
   const openInExplorer = (txId: string) => {
-    const url = AlgorandAPIService.getTransactionExplorerUrl(txId);
+    const url = AlgorandService.getTransactionExplorerUrl(txId);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -202,7 +202,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 <div>
                   <div className="text-sm text-gray-400">Sender</div>
                   <div className="font-mono text-sm text-cyan-400 break-all">
-                    {AlgorandAPIService.shortenAddress(transaction.sender)}
+                    {AlgorandService.shortenAddress(transaction.sender)}
                   </div>
                 </div>
 
@@ -211,7 +211,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <div>
                     <div className="text-sm text-gray-400">Receiver</div>
                     <div className="font-mono text-sm text-cyan-400 break-all">
-                      {AlgorandAPIService.shortenAddress(transaction['payment-transaction'].receiver)}
+                      {AlgorandService.shortenAddress(transaction['payment-transaction'].receiver)}
                     </div>
                   </div>
                 )}
@@ -251,7 +251,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <div>
                     <div className="text-sm text-gray-400">Receiver</div>
                     <div className="font-mono text-cyan-400 text-sm">
-                      {AlgorandAPIService.shortenAddress(transaction['asset-transfer-transaction'].receiver)}
+                      {AlgorandService.shortenAddress(transaction['asset-transfer-transaction'].receiver)}
                     </div>
                   </div>
                 </div>
@@ -274,7 +274,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="text-cyan-400 font-mono text-sm">
-                        {AlgorandAPIService.shortenAddress(tx.id, 8)}
+                        {AlgorandService.shortenAddress(tx.id, 8)}
                       </div>
                       <ArrowRight className="w-4 h-4 text-gray-400" />
                       <div className="text-white text-sm">{getTransactionType(tx)}</div>

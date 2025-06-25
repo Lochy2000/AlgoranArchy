@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Copy, ExternalLink, Wallet, RefreshCw, Send, ArrowUpDown } from 'lucide-react';
-import { AlgorandService } from '../utils/algorand';
+import { AlgorandService } from '../services/algorandService';
 import { useAlgorandStore } from '../store/algorandStore';
 import type { AlgorandAccount } from '../types/algorand';
 

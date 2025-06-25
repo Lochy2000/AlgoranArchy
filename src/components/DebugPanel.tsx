@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bug, ChevronDown, ChevronUp, RefreshCw, CheckCircle, XCircle, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
-import { AlgorandAPIService } from '../services/algorandService';
+import { AlgorandService } from '../services/algorandService';
 import { PriceService } from '../services/priceService';
 import { EnhancedDexService } from '../services/enhancedDexService';
 
@@ -16,7 +16,7 @@ export const DebugPanel: React.FC = () => {
   const testAlgorandAPI = async () => {
     setApiStatus('testing');
     try {
-      const result = await AlgorandAPIService.testConnectivity();
+      const result = await AlgorandService.testConnectivity();
       setApiResponse(result);
       setApiStatus(result.success ? 'success' : 'failed');
       
