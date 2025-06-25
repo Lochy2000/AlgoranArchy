@@ -301,7 +301,7 @@ If you like this project, please consider:
 - Starring the repository
 - Sharing on social media
 - Contributing to the codebase
-- [Buying us a coffee]([https://buymeacoffee.com/algoranarchy](https://buymeacoffee.com/lohiggins0m))
+- [Buying us a coffee]([https://buymeacoffee.com/algoranarchy](coff.ee/lohiggins0m))
 
 ---
 
