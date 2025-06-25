@@ -46,11 +46,19 @@ function App() {
   useEffect(() => {
     // Initialize data on app load
     console.log('🚀 Initializing Enhanced Algoranarchy app...');
+    const network = (import.meta.env.VITE_ALGO_NETWORK || 'mainnet').toLowerCase();
+    const nodeUrl = network === 'testnet'
+      ? import.meta.env.VITE_ALGO_NODE_TESTNET
+      : import.meta.env.VITE_ALGO_NODE_MAINNET;
+    const indexerUrl = network === 'testnet'
+      ? import.meta.env.VITE_ALGO_INDEXER_TESTNET
+      : import.meta.env.VITE_ALGO_INDEXER_MAINNET;
     console.log('Environment check:', {
       algoToken: import.meta.env.VITE_ALGO_API_TOKEN ? 'Present ✅' : 'Missing ❌',
       moralisKey: import.meta.env.VITE_MORALIS_API_KEY ? 'Present ✅' : 'Missing ❌',
-      nodeUrl: import.meta.env.VITE_ALGO_NODE_MAINNET,
-      indexerUrl: import.meta.env.VITE_ALGO_INDEXER_MAINNET,
+      network,
+      nodeUrl,
+      indexerUrl,
       peraWalletBridge: import.meta.env.VITE_PERA_WALLET_BRIDGE_URL,
       debugMode: import.meta.env.VITE_DEBUG_MODE
     });

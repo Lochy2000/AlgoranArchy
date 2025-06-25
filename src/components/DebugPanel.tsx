@@ -64,8 +64,11 @@ export const DebugPanel: React.FC = () => {
   const checkEnvironmentVariables = () => {
     const envVars = {
       'VITE_ALGO_API_TOKEN': import.meta.env.VITE_ALGO_API_TOKEN ? 'SET ✅' : 'NOT SET ❌',
+      'VITE_ALGO_NETWORK': import.meta.env.VITE_ALGO_NETWORK || 'mainnet',
       'VITE_ALGO_NODE_MAINNET': import.meta.env.VITE_ALGO_NODE_MAINNET || 'NOT SET ❌',
       'VITE_ALGO_INDEXER_MAINNET': import.meta.env.VITE_ALGO_INDEXER_MAINNET || 'NOT SET ❌',
+      'VITE_ALGO_NODE_TESTNET': import.meta.env.VITE_ALGO_NODE_TESTNET || 'NOT SET ❌',
+      'VITE_ALGO_INDEXER_TESTNET': import.meta.env.VITE_ALGO_INDEXER_TESTNET || 'NOT SET ❌',
       'VITE_MORALIS_API_KEY': import.meta.env.VITE_MORALIS_API_KEY ? 'SET ✅' : 'NOT SET ❌',
       'VITE_COINGECKO_API_KEY': import.meta.env.VITE_COINGECKO_API_KEY ? 'SET ✅' : 'NOT SET ❌',
       'VITE_PERA_WALLET_BRIDGE_URL': import.meta.env.VITE_PERA_WALLET_BRIDGE_URL || 'NOT SET ❌',

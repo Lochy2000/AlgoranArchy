@@ -2,8 +2,14 @@ import algosdk from 'algosdk';
 import type { AlgorandAccount, Block, NodeStatus, LedgerSupply, AssetInfo, Transaction } from '../types/algorand';
 
 const API_TOKEN = import.meta.env.VITE_ALGO_API_TOKEN || '';
+const NETWORK = (import.meta.env.VITE_ALGO_NETWORK || 'mainnet').toLowerCase();
 const MAINNET_NODE = import.meta.env.VITE_ALGO_NODE_MAINNET || 'https://mainnet-api.4160.nodely.io';
 const MAINNET_INDEXER = import.meta.env.VITE_ALGO_INDEXER_MAINNET || 'https://mainnet-idx.4160.nodely.io';
+const TESTNET_NODE = import.meta.env.VITE_ALGO_NODE_TESTNET || 'https://testnet-api.4160.nodely.io';
+const TESTNET_INDEXER = import.meta.env.VITE_ALGO_INDEXER_TESTNET || 'https://testnet-idx.4160.nodely.io';
+
+const NODE_URL = NETWORK === 'testnet' ? TESTNET_NODE : MAINNET_NODE;
+const INDEXER_URL = NETWORK === 'testnet' ? TESTNET_INDEXER : MAINNET_INDEXER;
 const DEBUG_MODE = import.meta.env.VITE_DEBUG_MODE === 'true';
 
 // Enhanced Algorand service with proper API token injection and error handling
@@ -23,14 +29,15 @@ export class AlgorandService {
       console.warn('⚠️ VITE_ALGO_API_TOKEN is missing - API calls may fail with 403');
     }
 
-    this.algodClient = new algosdk.Algodv2(headers, MAINNET_NODE, '');
-    this.indexerClient = new algosdk.Indexer(headers, MAINNET_INDEXER, '');
+    this.algodClient = new algosdk.Algodv2(headers, NODE_URL, '');
+    this.indexerClient = new algosdk.Indexer(headers, INDEXER_URL, '');
     this.isInitialized = true;
 
     if (DEBUG_MODE) {
       console.log('🔗 Algorand API Service initialized');
-      console.log('Node URL:', MAINNET_NODE);
-      console.log('Indexer URL:', MAINNET_INDEXER);
+      console.log('Network:', NETWORK);
+      console.log('Node URL:', NODE_URL);
+      console.log('Indexer URL:', INDEXER_URL);
       console.log('API Token:', API_TOKEN ? 'Present ✅' : 'Missing ❌');
     }
   }
@@ -513,7 +520,7 @@ export class AlgorandService {
       this.initialize();
       
       // Test algod health with proper headers
-      const healthUrl = `${MAINNET_NODE}/health`;
+      const healthUrl = `${NODE_URL}/health`;
       const headers: Record<string, string> = {};
       if (API_TOKEN) {
         headers['X-Algo-API-Token'] = API_TOKEN;
@@ -531,8 +538,9 @@ export class AlgorandService {
           success: true,
           message: 'Algorand API is fully accessible',
           details: {
-            nodeUrl: MAINNET_NODE,
-            indexerUrl: MAINNET_INDEXER,
+            network: NETWORK,
+            nodeUrl: NODE_URL,
+            indexerUrl: INDEXER_URL,
             lastRound: status.lastRound,
             version: status.lastVersion,
             tokenPresent: !!API_TOKEN
@@ -542,7 +550,7 @@ export class AlgorandService {
         return {
           success: false,
           message: `API health check failed: ${healthResponse.status}`,
-          details: { nodeUrl: MAINNET_NODE, tokenPresent: !!API_TOKEN }
+          details: { network: NETWORK, nodeUrl: NODE_URL, tokenPresent: !!API_TOKEN }
         };
       }
     } catch (error) {
