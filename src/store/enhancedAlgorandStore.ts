@@ -109,6 +109,7 @@ export const useEnhancedAlgorandStore = create<EnhancedAlgorandState>((set, get)
         set({ networkStats: stats });
       } catch (error) {
         console.error('Store: fetchNetworkStats error:', error);
+        set({ networkStats: null });
       }
     },
 

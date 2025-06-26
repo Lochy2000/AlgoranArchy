@@ -378,7 +378,7 @@ export class AlgorandService {
   }
 
   // Network Statistics
-  static async getNetworkStats(): Promise<any> {
+  static async getNetworkStats(): Promise<any | null> {
     try {
       const [status, supply] = await Promise.all([
         this.getNodeStatus(),
@@ -395,7 +395,7 @@ export class AlgorandService {
       };
     } catch (error) {
       console.warn('Failed to get network stats:', error);
-      return this.getMockNetworkStats();
+      return null;
     }
   }
 
@@ -452,66 +452,66 @@ export class AlgorandService {
   }
 
   // Mock Data Methods (for fallback)
-  private static getMockNodeStatus(): NodeStatus {
-    return {
-      'catchup-time': 0,
-      'last-round': 50789234,
-      'last-version': 'v3.25.0',
-      'next-version': 'v3.25.0',
-      'next-version-round': 50789234,
-      'next-version-supported': true,
-      'stopped-at-unsupported-round': false,
-      'time-since-last-round': 3800
-    };
-  }
+  // private static getMockNodeStatus(): NodeStatus {
+  //   return {
+  //     'catchup-time': 0,
+  //     'last-round': 50789234,
+  //     'last-version': 'v3.25.0',
+  //     'next-version': 'v3.25.0',
+  //     'next-version-round': 50789234,
+  //     'next-version-supported': true,
+  //     'stopped-at-unsupported-round': false,
+  //     'time-since-last-round': 3800
+  //   };
+  // }
 
-  private static getMockLedgerSupply(): LedgerSupply {
-    return {
-      current_round: 50789234,
-      online_money: 6800000000000000,
-      total_money: 10000000000000000
-    };
-  }
+  // private static getMockLedgerSupply(): LedgerSupply {
+  //   return {
+  //     current_round: 50789234,
+  //     online_money: 6800000000000000,
+  //     total_money: 10000000000000000
+  //   };
+  // }
 
-  private static getMockBlock(round: number): Block {
-    return {
-      round: round,
-      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
-      'genesis-id': 'mainnet-v1.0',
-      'previous-block-hash': `${Math.random().toString(36).substring(2, 8)}...${Math.random().toString(36).substring(2, 8)}`,
-      rewards: {
-        'fee-sink': 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE',
-        'rewards-calculation-round': round,
-        'rewards-level': 0,
-        'rewards-pool': 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE',
-        'rewards-rate': 0,
-        'rewards-residue': 0
-      },
-      seed: 'mock-seed',
-      timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 300),
-      'transactions-root': 'mock-tx-root',
-      'txn-counter': Math.floor(Math.random() * 200) + 50
-    };
-  }
+  // private static getMockBlock(round: number): Block {
+  //   return {
+  //     round: round,
+  //     'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+  //     'genesis-id': 'mainnet-v1.0',
+  //     'previous-block-hash': `${Math.random().toString(36).substring(2, 8)}...${Math.random().toString(36).substring(2, 8)}`,
+  //     rewards: {
+  //       'fee-sink': 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE',
+  //       'rewards-calculation-round': round,
+  //       'rewards-level': 0,
+  //       'rewards-pool': 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE',
+  //       'rewards-rate': 0,
+  //       'rewards-residue': 0
+  //     },
+  //     seed: 'mock-seed',
+  //     timestamp: Math.floor(Date.now() / 1000) - Math.floor(Math.random() * 300),
+  //     'transactions-root': 'mock-tx-root',
+  //     'txn-counter': Math.floor(Math.random() * 200) + 50
+  //   };
+  // }
 
-  private static getMockBlocks(count: number): Block[] {
-    const blocks: Block[] = [];
-    for (let i = 0; i < count; i++) {
-      blocks.push(this.getMockBlock(50789234 - i));
-    }
-    return blocks;
-  }
+  // private static getMockBlocks(count: number): Block[] {
+  //   const blocks: Block[] = [];
+  //   for (let i = 0; i < count; i++) {
+  //     blocks.push(this.getMockBlock(50789234 - i));
+  //   }
+  //   return blocks;
+  // }
 
-  private static getMockNetworkStats(): any {
-    return {
-      currentRound: 50789234,
-      totalSupply: 10000000000000000,
-      onlineStake: 6800000000000000,
-      participationRate: 68,
-      lastBlockTime: 3800,
-      version: 'v3.25.0'
-    };
-  }
+  // private static getMockNetworkStats(): any {
+  //   return {
+  //     currentRound: 50789234,
+  //     totalSupply: 10000000000000000,
+  //     onlineStake: 6800000000000000,
+  //     participationRate: 68,
+  //     lastBlockTime: 3800,
+  //     version: 'v3.25.0'
+  //   };
+  // }
 
   // API Connectivity Test
   static async testConnectivity(): Promise<{ success: boolean; message: string; details?: any }> {
