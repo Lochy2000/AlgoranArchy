@@ -64,7 +64,7 @@ export const DebugPanel: React.FC = () => {
   const checkEnvironmentVariables = () => {
     const envVars = {
       'VITE_ALGO_API_TOKEN': import.meta.env.VITE_ALGO_API_TOKEN ? 'SET ✅' : 'NOT SET ❌',
-      'VITE_ALGO_NETWORK': import.meta.env.VITE_ALGO_NETWORK || 'mainnet',
+      'VITE_ENVIRONMENT': import.meta.env.VITE_ENVIRONMENT || 'production',
       'VITE_ALGO_NODE_MAINNET': import.meta.env.VITE_ALGO_NODE_MAINNET || 'NOT SET ❌',
       'VITE_ALGO_INDEXER_MAINNET': import.meta.env.VITE_ALGO_INDEXER_MAINNET || 'NOT SET ❌',
       'VITE_ALGO_NODE_TESTNET': import.meta.env.VITE_ALGO_NODE_TESTNET || 'NOT SET ❌',

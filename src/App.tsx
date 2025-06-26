@@ -46,7 +46,8 @@ function App() {
   useEffect(() => {
     // Initialize data on app load
     console.log('🚀 Initializing Enhanced Algoranarchy app...');
-    const network = (import.meta.env.VITE_ALGO_NETWORK || 'mainnet').toLowerCase();
+    const environment = (import.meta.env.VITE_ENVIRONMENT || '').toLowerCase();
+    const network = environment === 'testnet' ? 'testnet' : 'mainnet';
     const nodeUrl = network === 'testnet'
       ? import.meta.env.VITE_ALGO_NODE_TESTNET
       : import.meta.env.VITE_ALGO_NODE_MAINNET;
