@@ -12,8 +12,10 @@ export const Ticker: React.FC = () => {
     const fetchAlgoPrice = async () => {
       try {
         const priceData = await PriceService.getAlgorandPrice();
-        setAlgoPrice(priceData.price);
-        setPriceChange(priceData.change24h);
+        if (priceData) {
+          setAlgoPrice(priceData.price);
+          setPriceChange(priceData.change24h);
+        }
       } catch (error) {
         console.error('Failed to fetch ALGO price:', error);
         // Keep using mock data

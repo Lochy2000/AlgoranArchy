@@ -18,7 +18,11 @@ export const StatsCards: React.FC = () => {
     const load = async () => {
       try {
         const price = await PriceService.getAlgorandPrice();
-        setAlgoPrice({ price: price.price, change24h: price.change24h });
+        if (price) {
+          setAlgoPrice({ price: price.price, change24h: price.change24h });
+        } else {
+          setAlgoPrice(null);
+        }
       } catch (err) {
         console.warn('Failed to fetch ALGO price:', err);
       }
@@ -48,8 +52,8 @@ export const StatsCards: React.FC = () => {
     },
     {
       title: 'ALGO PRICE',
-      value: algoPrice ? `$${algoPrice.price.toFixed(algoPrice.price < 1 ? 4 : 2)}` : '---',
-      change: algoPrice ? `${algoPrice.change24h >= 0 ? '+' : ''}${algoPrice.change24h.toFixed(2)}%` : '',
+      value: algoPrice ? `$${algoPrice.price.toFixed(algoPrice.price < 1 ? 4 : 2)}` : 'N/A',
+      change: algoPrice ? `${algoPrice.change24h >= 0 ? '+' : ''}${algoPrice.change24h.toFixed(2)}%` : 'N/A',
       trend: algoPrice && algoPrice.change24h >= 0 ? 'up' : 'down',
       icon: DollarSign,
       color: 'purple',
