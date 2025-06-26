@@ -47,8 +47,7 @@ export const TokensGrid: React.FC = () => {
         price: price ? `$${price.price.toFixed(price.price < 1 ? 4 : 2)}` : 'N/A',
         change: price ? `${price.change24h >= 0 ? '+' : ''}${price.change24h.toFixed(2)}%` : 'N/A',
         volume: price ? `${(price.volume24h / 1_000_000).toFixed(1)}M` : 'N/A',
-        trend: price ? (price.change24h >= 0 ? 'up' : 'down') : 'up',
-        isReal: !!price
+        trend: price ? (price.change24h >= 0 ? 'up' : 'down') : 'up'
       };
     });
   };
@@ -135,11 +134,6 @@ export const TokensGrid: React.FC = () => {
               className="bg-black/80 border border-pink-500 p-6 rounded-xl transition-all hover:transform hover:-translate-y-2 hover:shadow-lg hover:shadow-pink-500/30 cursor-pointer relative"
               onClick={(e) => handleTokenClick(e, token.assetId)}
             >
-              {/* Real/Mock Data Indicator */}
-              <div className="absolute top-2 right-2">
-                <div className={`w-2 h-2 rounded-full ${token.isReal ? 'bg-green-400' : 'bg-yellow-400'}`} 
-                     title={token.isReal ? 'Real price data' : 'Mock price data'} />
-              </div>
 
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
@@ -179,22 +173,6 @@ export const TokensGrid: React.FC = () => {
         })}
       </div>
 
-      {/* Price Data Status */}
-      <div className="mt-6 text-center">
-        <div className="inline-flex items-center space-x-4 text-sm text-gray-400">
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-green-400 rounded-full mr-2" />
-            Real price data
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2" />
-            Mock price data
-          </div>
-        </div>
-        <div className="text-xs text-gray-500 mt-2">
-          Price data sources: CoinPaprika, CryptoCompare, CoinGecko (fallback to mock data if APIs unavailable)
-        </div>
-      </div>
     </section>
   );
 };

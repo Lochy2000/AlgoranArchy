@@ -81,15 +81,7 @@ export class PriceService {
     }
   }
 
-  static async getAlgorandPrice(): Promise<PriceData> {
-    // Fallback data
-    const fallbackData = {
-      symbol: 'ALGO',
-      price: 0.18,
-      change24h: -1.3,
-      volume24h: 42000000,
-      marketCap: 1330000000
-    };
+  static async getAlgorandPrice(): Promise<PriceData | null> {
 
     try {
       // Try Moralis API first (if API key is available)
@@ -109,8 +101,8 @@ export class PriceService {
               symbol: 'ALGO',
               price: parseFloat(data.usdPrice),
               change24h: parseFloat(data['24hrPercentChange'] || '0'),
-              volume24h: fallbackData.volume24h, // Moralis doesn't provide volume for this endpoint
-              marketCap: fallbackData.marketCap
+              volume24h: 0,
+              marketCap: 0
             };
           }
         } catch (moralisError) {
@@ -154,12 +146,12 @@ export class PriceService {
           const change24h = ((currentPrice - yesterdayPrice) / yesterdayPrice) * 100;
           
           console.log('✅ CryptoCompare API success:', { currentPrice, change24h });
-          return {
+            return {
             symbol: 'ALGO',
             price: currentPrice,
             change24h: change24h,
-            volume24h: fallbackData.volume24h, // CryptoCompare free tier doesn't include volume
-            marketCap: fallbackData.marketCap
+            volume24h: 0,
+            marketCap: 0
           };
         }
       } catch (cryptoCompareError) {
@@ -188,13 +180,13 @@ export class PriceService {
         console.warn('CoinGecko API also failed', coinGeckoError.message);
       }
 
-      // If all APIs fail, return mock data with a warning
-      console.warn('All price APIs failed, using fallback data');
-      return fallbackData;
+      // If all APIs fail, return null
+      console.warn('All price APIs failed');
+      return null;
 
     } catch (error) {
       console.error('Error fetching Algorand price:', error);
-      return fallbackData;
+      return null;
     }
   }
 
@@ -286,20 +278,8 @@ export class PriceService {
       console.log('📊 Fetching market data...');
       
       const [algoPrice, tokenPrices] = await Promise.all([
-        this.getAlgorandPrice().catch(error => {
-          console.warn('ALGO price fetch failed:', error);
-          return {
-            symbol: 'ALGO',
-            price: 0.18,
-            change24h: -1.3,
-            volume24h: 42000000,
-            marketCap: 1330000000
-          };
-        }),
-        this.getTokenPrices(['31566704', '312769', '386192725', '386195940']).catch(error => {
-          console.warn('Token prices fetch failed:', error);
-          return {};
-        })
+        this.getAlgorandPrice(),
+        this.getTokenPrices(['31566704', '312769', '386192725', '386195940'])
       ]);
       
       console.log('✅ Market data fetched successfully');
@@ -310,15 +290,8 @@ export class PriceService {
     } catch (error) {
       console.error('Error fetching market data:', error);
       
-      // Return fallback data
       return {
-        algo: {
-          symbol: 'ALGO',
-          price: 0.18,
-          change24h: -1.3,
-          volume24h: 42000000,
-          marketCap: 1330000000
-        },
+        algo: null,
         tokens: {}
       };
     }
