@@ -83,8 +83,8 @@ ALGORANARCHY breaks the mold of traditional blockchain explorers with a punk roc
    ```env
    # CRITICAL: Get this from Nodely.io or AlgoNode.io
    VITE_ALGO_API_TOKEN=your_algorand_api_token
-   # Network selection: mainnet or testnet
-   VITE_ALGO_NETWORK=mainnet
+   # Environment: production or testnet
+   VITE_ENVIRONMENT=production
    VITE_ALGO_NODE_MAINNET=https://mainnet-api.4160.nodely.io
    VITE_ALGO_INDEXER_MAINNET=https://mainnet-idx.4160.nodely.io
    VITE_ALGO_NODE_TESTNET=https://testnet-api.4160.nodely.io
@@ -168,7 +168,7 @@ The application is deployed on Netlify with the following environment variables 
 
 ```env
 VITE_ALGO_API_TOKEN=your_algorand_api_token
-VITE_ALGO_NETWORK=mainnet
+VITE_ENVIRONMENT=production
 VITE_ALGO_NODE_MAINNET=https://mainnet-api.4160.nodely.io
 VITE_ALGO_INDEXER_MAINNET=https://mainnet-idx.4160.nodely.io
 VITE_ALGO_NODE_TESTNET=https://testnet-api.4160.nodely.io
@@ -177,7 +177,6 @@ VITE_MORALIS_API_KEY=your_moralis_api_key
 VITE_COINGECKO_API_KEY=your_coingecko_api_key
 VITE_PERA_WALLET_BRIDGE_URL=https://wallet-connect.perawallet.app
 VITE_DEBUG_MODE=false
-VITE_ENVIRONMENT=production
 ```
 
 For deployment instructions, see our [Deployment Guide](docs/DEPLOYMENT.md).

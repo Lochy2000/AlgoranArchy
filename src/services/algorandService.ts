@@ -2,7 +2,8 @@ import algosdk from 'algosdk';
 import type { AlgorandAccount, Block, NodeStatus, LedgerSupply, AssetInfo, Transaction } from '../types/algorand';
 
 const API_TOKEN = import.meta.env.VITE_ALGO_API_TOKEN || '';
-const NETWORK = (import.meta.env.VITE_ALGO_NETWORK || 'mainnet').toLowerCase();
+const ENVIRONMENT = (import.meta.env.VITE_ENVIRONMENT || '').toLowerCase();
+const NETWORK = ENVIRONMENT === 'testnet' ? 'testnet' : 'mainnet';
 const MAINNET_NODE = import.meta.env.VITE_ALGO_NODE_MAINNET || 'https://mainnet-api.4160.nodely.io';
 const MAINNET_INDEXER = import.meta.env.VITE_ALGO_INDEXER_MAINNET || 'https://mainnet-idx.4160.nodely.io';
 const TESTNET_NODE = import.meta.env.VITE_ALGO_NODE_TESTNET || 'https://testnet-api.4160.nodely.io';
