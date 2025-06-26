@@ -45,7 +45,6 @@ function App() {
 
   useEffect(() => {
     // Initialize data on app load
-    console.log('🚀 Initializing Enhanced Algoranarchy app...');
     const environment = (import.meta.env.VITE_ENVIRONMENT || '').toLowerCase();
     const network = environment === 'testnet' ? 'testnet' : 'mainnet';
     const nodeUrl = network === 'testnet'
@@ -54,15 +53,7 @@ function App() {
     const indexerUrl = network === 'testnet'
       ? import.meta.env.VITE_ALGO_INDEXER_TESTNET
       : import.meta.env.VITE_ALGO_INDEXER_MAINNET;
-    console.log('Environment check:', {
-      algoToken: import.meta.env.VITE_ALGO_API_TOKEN ? 'Present ✅' : 'Missing ❌',
-      moralisKey: import.meta.env.VITE_MORALIS_API_KEY ? 'Present ✅' : 'Missing ❌',
-      network,
-      nodeUrl,
-      indexerUrl,
-      peraWalletBridge: import.meta.env.VITE_PERA_WALLET_BRIDGE_URL,
-      debugMode: import.meta.env.VITE_DEBUG_MODE
-    });
+    console.log(`Algorand ${environment} indexer: ${indexerUrl}`);
     
     // Initialize wallet services
     WalletService.initializeWallets();
