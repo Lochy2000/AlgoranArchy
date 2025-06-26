@@ -171,7 +171,7 @@ VITE_COINGECKO_API_KEY=your_production_key
 
 # Production settings
 VITE_DEBUG_MODE=false
-VITE_ENVIRONMENT=production
+VITE_ENVIRONMENT=production # set to 'testnet' for Algorand testnet
 ```
 
 ### Security Considerations
