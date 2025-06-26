@@ -129,27 +129,11 @@ export const TokensGrid: React.FC = () => {
           const TrendIcon = token.trend === 'up' ? TrendingUp : TrendingDown;
           
           return (
-            <div 
+            <div
               key={index}
               className="bg-black/80 border border-pink-500 p-6 rounded-xl transition-all hover:transform hover:-translate-y-2 hover:shadow-lg hover:shadow-pink-500/30 cursor-pointer relative"
               onClick={(e) => handleTokenClick(e, token.assetId)}
             >
-
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <div className={`w-10 h-10 bg-gradient-to-r ${token.color} rounded-full flex items-center justify-center text-white font-bold`}>
-                    {token.icon}
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="font-bold text-white">{token.symbol}</h3>
-                    <p className="text-gray-400 text-sm">{token.name}</p>
-                  </div>
-                </div>
-                <div className={`flex items-center ${token.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
-                  <TrendIcon className="w-4 h-4 mr-1" />
-                  {token.change}
-                </div>
-              </div>
               
               <div className="mb-4">
                 <div className="text-2xl font-bold text-white">{token.price}</div>
