@@ -305,7 +305,7 @@ If you like this project, please consider:
 
 ---
 
-**Built with and by the ALGORANARCHY team**
+**Built with the ALGORANARCHY team**
 
 *Rock the blockchain!* 
 
